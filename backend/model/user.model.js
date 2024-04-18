@@ -1,35 +1,30 @@
 const { Schema, model, Types } = require("mongoose");
-const { validate } = require("./shop.model");
-
-function validateGender(value) {
-    return ["male", "female"].includes(value);
-}
 
 const userSchema = new Schema({
     fullname: {
         type: String,
     },
 
-    avatar: { 
-        type: String, 
-    }, 
-    // add validate
-    email: {
+    avatar: {
         type: String,
-        // unique: true,
     },
 
-    // add validate
+    // need more validate in phone and email
     phone: {
         type: String,
-        unique: true,
+        required: true,
     },
+
+    email: {
+        type: String,
+    },
+
     password: {
         type: String,
         require: true,
     },
 
-    // long - lat 
+    // long - lat
     address: {
         type: Array,
         default: [],
@@ -41,12 +36,9 @@ const userSchema = new Schema({
 
     gender: {
         type: String,
-        validate: {
-            validator: validateGender,
-            message: 'Gender must be either "male" or "female"',
-        },
+        enum: ["male", "female"],
     },
-    
+
     roles: {
         type: Number,
     },
@@ -56,4 +48,8 @@ const userSchema = new Schema({
         default: Date.now,
     },
 });
+
+// create index for phone
+userSchema.index({ phone: 1 });
+
 module.exports = model("User", userSchema);

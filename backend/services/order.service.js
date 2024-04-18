@@ -8,10 +8,7 @@ module.exports = {
     async checkoutReview(req, res) {
         const { id: cardId } = req.params;
         const userId = req.user;
-
-
         
-
         res.status(200).json()
     },
 };

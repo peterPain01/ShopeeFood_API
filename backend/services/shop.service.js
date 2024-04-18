@@ -1,6 +1,8 @@
 const { update } = require("lodash");
 const productModel = require("../model/product.model");
 const { unPublishProductByShop } = require("../controller/shop.C");
+const shopModel = require("../model/shop.model");
+const { Types } = require("mongoose");
 
 module.exports = {
     async findAllDraftsForShop({ query, limit, skip }) {
@@ -28,5 +30,9 @@ module.exports = {
 
     async unPublishProductByShop({ filter, update }) {
         return await productModel.findOneAndUpdate(filter, update);
+    },
+
+    async findShopById(shopId) {
+        return await shopModel.findById(shopId);
     },
 };

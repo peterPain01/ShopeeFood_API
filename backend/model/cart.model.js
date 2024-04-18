@@ -9,6 +9,7 @@ const cartSchema = new Schema(
         },
 
         cart_products: { type: Array, required: true, default: [] },
+        
         cart_count_product: { type: Number, default: 0 },
         cart_userId: { type: Types.ObjectId, required: true, ref: "User" },
     },

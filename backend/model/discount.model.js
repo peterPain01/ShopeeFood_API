@@ -14,20 +14,25 @@ const discountSchema = new Schema({
     discount_end_date: { type: Date, required: true },
 
     discount_usage_limit: { type: Number, required: true },
-    discount_uses_count: { type: Number, required: true },
+    discount_uses_count: { type: Number, required: true, default: 0 },
     discount_users_used: { type: Array, required: true, default: [] },
-    discount_max_use_per_user: { type: Number, required: true },
+    discount_max_uses_per_user: { type: Number, required: true },
 
     discount_min_order_value: { type: Number, required: true },
-    discount_shopId: { type: Types.ObjectId, ref: "Shop" },
+    discount_shopId: { type: Types.ObjectId, ref: "Shop", required: true },
 
     discount_is_active: { type: Boolean, default: true },
     discount_applies_to: {
         type: String,
         required: true,
         enum: ["all", "specific"],
+        default: "all",
     },
-    discount_product_id: { type: Array, default: [] },
+
+    /*  if applies_tp is specific 
+    -> shop must be give list of product that apply discount 
+    */
+    discount_products_id: { type: Array, default: [] },
 });
 
 module.exports = model("Discount", discountSchema);

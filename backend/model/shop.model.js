@@ -1,60 +1,59 @@
 const { Schema, model, Types } = require("mongoose");
 
-const shopSchema = new Schema({
-    name: {
-        type: String,
-        required: true,
-        trim: true,
-        maxLength: 150,
-    },
+const shopSchema = new Schema(
+    {
+        name: {
+            type: String,
+            required: true,
+            trim: true,
+            maxLength: 150,
+        },
+        image: {
+            type: String,
+            required: true,
+        },
 
-    description: {
-        type: String,
-    },
+        description: {
+            type: String,
+            required: true,
+        },
 
-    phone: {
-        type: String,
-    },
+        phone: {
+            type: String,
+        },
 
-    address: {
-        type: String,
-    },
+        address: {
+            type: String,
+        },
 
-    status: {
-        type: String,
-        enum: ["active", "inactive"],
-        default: "inactive",
-    },
+        status: {
+            type: String,
+            enum: ["active", "inactive"],
+            default: "inactive",
+        },
 
-    verify: {
-        type: Schema.Types.Boolean,
-        default: false,
-    },
+        verify: {
+            type: Schema.Types.Boolean,
+            default: false,
+        },
 
-    owner: { type: Schema.Types.ObjectId, ref: "User" },
+        owner: { type: Schema.Types.ObjectId, ref: "User" },
 
-    roles: {
-        type: Array,
-        default: [],
-    },
+        roles: {
+            type: Array,
+            default: [],
+        },
 
-    created_at: {
-        type: Date,
-        default: Date.now,
+        avg_rating: {
+            type: Number,
+        },
+        // Lưu trữ các menu các món ăn, mỗi món ăn có các option khác nhau
+        // position: string
+        // positionMap: string
     },
-
-    updated_at: {
-        type: Date,
-        default: Date.now,
-    },
-
-    avg_rating: {
-        type: Number, 
-    },
-    // Lưu trữ các menu các món ăn, mỗi món ăn có các option khác nhau
-    //     image: string
-    // position: string
-    // positionMap: string
-});
+    {
+        timestamps: true,
+    }
+);
 
 module.exports = model("Shop", shopSchema);

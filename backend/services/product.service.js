@@ -6,34 +6,19 @@ const {
     removeNestedNullUndefined,
     NestedObjectParser,
 } = require("../utils/index");
+
 module.exports = {
-    ProductInfo: class {
-        constructor({
-            name,
-            thumb,
-            description,
-            price,
-            quantity,
-            category,
-            shop,
-        }) {
-            this.name = name;
-            this.thumb = thumb;
-            this.description = description;
-            this.price = price;
-            this.quantity = quantity;
-            this.category = category;
-            this.shop = shop;
-        }
-    },
-    async createProduct(product) {
-        return await productModel.create(product);
+    async createProduct(product, shopId) {
+        return await productModel.create({
+            ...product,
+            product_shop: new Types.ObjectId(shopId),
+        });
     },
 
-    async updateProduct({ product_id, product_shop, bodyUpdate }) {
+    async updateProduct({ product_id, shopId, bodyUpdate }) {
         const filter = {
             _id: new Types.ObjectId(product_id),
-            product_shop: new Types.ObjectId(product_shop),
+            product_shop: new Types.ObjectId(shopId),
         };
         removeNestedNullUndefined(bodyUpdate);
         bodyUpdate = NestedObjectParser(bodyUpdate);
@@ -41,6 +26,7 @@ module.exports = {
             new: true,
         });
     },
+
     async getAllProducts({ limit, sort, page, filter, select }) {
         const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
         return await productModel
@@ -61,10 +47,8 @@ module.exports = {
             .select(unSelectData(unSelect));
     },
 
-    async deleteProduct(product_id) {
-        return await productModel.deleteOne({
-            _id: new Types.ObjectId(product_id),
-        });
+    async deleteProductById(filter) {
+        return await productModel.deleteOne(filter);
     },
 
     async searchProduct(keySearch) {

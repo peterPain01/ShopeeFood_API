@@ -4,11 +4,18 @@ const discountController = require("../controller/discount.C");
 const errorHandler = require("../utils/errorHandler");
 const { verifyToken } = require("../utils/auth");
 
-router.post("/discount", verifyToken, errorHandler(discountController.createDiscount));
-router.patch('/discount/:id', verifyToken, errorHandler(discountController.updateDiscount))
+// [POST]
+router.post("/shop/discount", verifyToken, errorHandler(discountController.createDiscount));
 
-// get discount by Shop 
-router.get('/discount/shop:id', verifyToken, errorHandler(discountController.getDiscountByShop))
-router.delete('/discount/:discount_id',verifyToken,  errorHandler(discountController.deleteDiscountByShop))
+// [PATCH]
+router.patch('/shop/discount/:id', verifyToken, errorHandler(discountController.updateDiscount))
+
+// [GET]
+// get discount available with product 
+router.get('/discount/product/:product_id', verifyToken, errorHandler(discountController.getDiscountByProduct))
+router.get('/shop/discount/:id', verifyToken, errorHandler(discountController.getDiscountByShop))
+
+// [DELETE]
+router.delete('/shop/discount/:discount_id',verifyToken,  errorHandler(discountController.deleteDiscountByShop))
 
 module.exports = router;
