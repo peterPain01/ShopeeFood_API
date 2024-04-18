@@ -7,7 +7,6 @@ const {
 } = require("../modules/CustomError");
 const discountService = require("../services/discount.service");
 const { Types } = require("mongoose");
-const { getSelectData } = require("../utils");
 
 module.exports = {
     async createDiscount(req, res) {
@@ -37,29 +36,45 @@ module.exports = {
     },
 
     async updateDiscount(req, res) {
+        const { userId: shopId } = req.user;
         const updateBody = req.body;
-        const { discountId } = req.params;
+        const { discount_id } = req.params;
+        if (!discount_id) throw new BadRequest("Missing required arguments");
 
-        // 1. find discount (discount, shopId)
-        // 2. apply joi
-        const filter = {};
-        await discountModel.updateOne(filter, { $set: updateBody });
+        const filter = {
+            _id: new Types.ObjectId(discount_id),
+            discount_shopId: new Types.ObjectId(shopId),
+        };
+
+        const updatedDiscount = await discountModel.findOneAndUpdate(
+            filter,
+            { $set: updateBody },
+            { new: true }
+        );
+        res.status(200).json(updatedDiscount);
     },
 
-    async getDiscountByShop(req, res) {
+    async getDiscountByShopId(req, res) {
         const { userId: shopId } = req.user;
 
         const filter = {
             discount_shopId: new Types.ObjectId(shopId),
         };
 
+        const select = [
+            "discount_name",
+            "discount_description",
+            "discount_end_date",
+            "discount_type",
+            "discount_value",
+        ];
         const discounts = await discountService.findAllDiscount({
             filter,
             limit: 50,
             page: 1,
+            select,
         });
         if (!discounts) throw new Api404Error("Discounts Not Found");
-
         res.status(200).send(discounts);
     },
 
@@ -68,25 +83,9 @@ module.exports = {
         const { product_id } = req.params;
         if (!product_id) throw new BadRequest("Missing required arguments");
 
-        const filter = {
-            $or: [
-                { discount_applies_to: "all" },
-                {
-                    discount_applies_to: "specific",
-                    discount_products_id: new Types.ObjectId(product_id),
-                },
-            ],
-        };
-        const select = [
-            "discount_name",
-            "discount_code",
-            "discount_type",
-            "discount_value",
-        ];
-        const discounts = await discountService.findAllDiscount({
-            filter,
-            select,
-        });
+        const discounts = await discountService.findDiscountByProduct(
+            product_id
+        );
         if (!discounts)
             throw new Api404Error("Discounts for this product not found");
 

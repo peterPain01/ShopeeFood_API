@@ -35,4 +35,19 @@ module.exports = {
     async findShopById(shopId) {
         return await shopModel.findById(shopId);
     },
+
+    async searchProductInShop(keySearch, shopId) {
+        const regexSearch = new RegExp(keySearch);
+        return await productModel
+            .find(
+                {
+                    isDraft: false,
+                    $text: { $search: regexSearch },
+                    product_shop: new Types.ObjectId(shopId),
+                },
+                { score: { $meta: "textScore" } }
+            )
+            .sort({ score: { $meta: "textScore" } })
+            .lean();
+    },
 };

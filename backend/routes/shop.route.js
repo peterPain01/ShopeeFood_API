@@ -3,12 +3,16 @@ const router = express.Router();
 const ShopController = require("../controller/shop.C");
 const errorHandler = require("../utils/errorHandler");
 const { verifyToken } = require("../utils/auth");
-const shopValidation = require("../validation/shopValidation");
-// when call API Shop change x-client-id to shopID
+
 // [POST]
 router.post("/shop", verifyToken, errorHandler(ShopController.createShop));
 
 // [GET]
+router.get(
+    "/shop/:shopId/products/search/:keySearch",
+    errorHandler(ShopController.searchProductInShop)
+);
+
 router.get(
     "/shop/drafts",
     verifyToken,
@@ -37,7 +41,6 @@ router.post(
 router.post(
     "/shop/product",
     verifyToken,
-    // [verifyToken, shopValidation.createProduct],
     errorHandler(ShopController.createProduct)
 );
 

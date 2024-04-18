@@ -21,10 +21,13 @@ module.exports = {
         }
 
         const encrypted_pass = await bcrypt.hash(String(password), SALTROUND);
+        const credential = phone ? phone : email;
+
         const newUser = await User.create({
-            phone,
+            credential,
             password: encrypted_pass,
         });
+
         if (!newUser) throw new InternalServerError("User failure created");
 
         req.user = newUser;

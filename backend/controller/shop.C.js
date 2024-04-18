@@ -132,4 +132,19 @@ module.exports = {
 
         res.status(200).json("Product successfully updated");
     },
+
+    async searchProductInShop(req, res) {
+        const { keySearch, shopId } = req.params;
+        if (!keySearch || shopId)
+            throw new BadRequest("Missing required arguments");
+
+        const foundProducts = await shopService.searchProductInShop(
+            keySearch,
+            shopId
+        );
+        if (!foundProducts)
+            throw new Api404Error("Products Empty in this shop");
+
+        res.status(200).json(foundProducts);
+    },
 };

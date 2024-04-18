@@ -1,6 +1,6 @@
 const discountModel = require("../model/discount.model");
 const { Types } = require("mongoose");
-const {getSelectData} = require('../utils/index')
+const { getSelectData } = require("../utils/index");
 module.exports = {
     async createDiscount(payload, shopId) {
         const {
@@ -53,5 +53,27 @@ module.exports = {
             .limit(limit)
             .select(getSelectData(select))
             .lean();
+    },
+
+    async findDiscountByProduct(product_id) {
+        const filter = {
+            $or: [
+                { discount_applies_to: "all" },
+                {
+                    discount_applies_to: "specific",
+                    discount_products_id: new Types.ObjectId(product_id),
+                },
+            ],
+        };
+        const select = [
+            "discount_name",
+            "discount_code",
+            "discount_type",
+            "discount_value",
+        ];
+        return await this.findAllDiscount({
+            filter,
+            select,
+        });
     },
 };
