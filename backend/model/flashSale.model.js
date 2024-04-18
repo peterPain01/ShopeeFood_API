@@ -1,21 +1,21 @@
 const mongoose = require('mongoose');
 
 const flashSaleSchema = new mongoose.Schema({
-    shopId: {
+    flash_shopId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Shop', 
         required: true
     },
-    startTime: {
+    flash_startTime: {
         type: Date,
         required: true
     },
-    endTime: {
+    flash_endTime: {
         type: Date,
         required: true
     },
-    discountedProducts: [{
-        itemId: {
+    flash_discountedProducts: [{
+        productId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Product'
         },
@@ -29,7 +29,7 @@ const flashSaleSchema = new mongoose.Schema({
         }
     }]
 
-    // fixe_open_time 
+    // fixed_open_time 
 });
 
 const FlashSale = mongoose.model('FlashSale', flashSaleSchema);
