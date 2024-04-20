@@ -6,7 +6,8 @@ const productRouter = require("./product.route");
 const shopRouter = require("./shop.route");
 const discountRouter = require("./discount.route");
 const cartRouter = require("./cart.route");
-const flashSaleRouter = require('./flash_sale.route')
+const flashSaleRouter = require("./flash_sale.route");
+const categoryRouter = require("./category.route");
 
 router.use(authRouter);
 
@@ -16,5 +17,6 @@ router.use(productRouter);
 router.use(discountRouter);
 router.use(cartRouter);
 router.use(flashSaleRouter);
+router.use(categoryRouter);
 
 module.exports = router;

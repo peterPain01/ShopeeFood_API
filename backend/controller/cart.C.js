@@ -10,8 +10,6 @@ const productService = require("../services/product.service");
 
 module.exports = {
     // ============== access db [4 TIMES] in bad case
-
-    // them san pham vao gio hang 
     async addProductToCart(req, res) {
         const { userId } = req.user;
         const { id: productId } = req.params;

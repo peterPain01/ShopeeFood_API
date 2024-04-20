@@ -1,6 +1,5 @@
 const { Types } = require("mongoose");
 const cartModel = require("../model/cart.model");
-const { findOneAndUpdate } = require("../model/product.model");
 const { BadRequest } = require("../modules/CustomError");
 
 module.exports = {

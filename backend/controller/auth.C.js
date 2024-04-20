@@ -24,10 +24,10 @@ module.exports = {
         const credential = phone ? phone : email;
 
         const newUser = await User.create({
-            credential,
+            phone,
             password: encrypted_pass,
         });
-
+        console.log(newUser);
         if (!newUser) throw new InternalServerError("User failure created");
 
         req.user = newUser;

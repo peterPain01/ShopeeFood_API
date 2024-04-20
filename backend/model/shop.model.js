@@ -21,14 +21,24 @@ const shopSchema = new Schema(
             type: String,
         },
 
+        /* 
+        address:  
+        { 
+            address: ....., 
+            position:{ 
+                lat: .... ,
+                lng: .......
+            } 
+         }
+        */
         address: {
-            type: String,
-            required: true, 
+            type: Object,
+            required: true,
         },
 
         category: {
             type: Array,
-            required: true, 
+            required: true,
         },
 
         status: {
@@ -42,19 +52,12 @@ const shopSchema = new Schema(
             default: false,
         },
 
+        
         owner: { type: Schema.Types.ObjectId, ref: "User" },
-
-        roles: {
-            type: Array,
-            default: [],
-        },
 
         avg_rating: {
             type: Number,
         },
-        // Lưu trữ các menu các món ăn, mỗi món ăn có các option khác nhau
-        // position: string
-        // positionMap: string
     },
     {
         timestamps: true,

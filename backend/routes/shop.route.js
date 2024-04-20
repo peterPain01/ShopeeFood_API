@@ -4,9 +4,6 @@ const ShopController = require("../controller/shop.C");
 const errorHandler = require("../utils/errorHandler");
 const { verifyToken } = require("../utils/auth");
 
-// [POST]
-router.post("/shop", verifyToken, errorHandler(ShopController.createShop));
-
 // [GET]
 router.get(
     "/shop/:shopId/products/search/:keySearch",
@@ -15,6 +12,12 @@ router.get(
 
 // [GET]
 router.get("/shop/category", errorHandler(ShopController.getShopByCategory))
+
+// [GET]
+router.get('/shop/top-rated', errorHandler(ShopController.getTopRatedShops))
+
+// [POST]
+router.post("/shop", verifyToken, errorHandler(ShopController.createShop));
 
 router.get(
     "/shop/drafts",

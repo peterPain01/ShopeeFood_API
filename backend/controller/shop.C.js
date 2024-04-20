@@ -148,8 +148,37 @@ module.exports = {
         res.status(200).json(foundProducts);
     },
 
-    async getShopByCategory(req, res)
-    { 
-        
-    }
+    async getShopByCategory(req, res) {
+        const { limit = 10, skip = 0, category } = req.params;
+        if (!category) throw new BadRequest("Missing required arguments");
+        const filter = {};
+        const shopsWithCategory = await shopModel
+            .find({})
+            .limit(limit)
+            .skip(skip);
+
+        if (!shopsWithCategory)
+            throw new InternalServerError(
+                "Error when finding shop by category"
+            );
+
+        res.status(200).json(shopsWithCategory);
+    },
+
+    async getTopRatedShops(req, res) {
+        const { limit = 10, skip = 0 } = req.query;
+        const select = ["name", "image", "category", "address", "avg_rating"];
+        const shopTopRated = await shopModel
+            .find({})
+            .sort({ avg_rating: 1 })
+            .select(select)
+            .skip(skip)
+            .limit(limit);
+
+        if (!shopTopRated)
+            throw new InternalServerError(
+                "Error occurred when get all top rated shop "
+            );
+        res.status(200).json(shopTopRated);
+    },
 };
