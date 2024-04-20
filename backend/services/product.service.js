@@ -39,11 +39,8 @@ module.exports = {
     },
 
     async getProductById({ product_id, unSelect }) {
-        console.log(unSelectData(unSelect));
         return await productModel
-            .findOne({
-                _id: new Types.ObjectId(product_id),
-            })
+            .findById(new Types.ObjectId(product_id))
             .select(unSelectData(unSelect));
     },
 

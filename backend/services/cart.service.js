@@ -1,10 +1,20 @@
 const { Types } = require("mongoose");
 const cartModel = require("../model/cart.model");
-const { BadRequest } = require("../modules/CustomError");
+const {
+    BadRequest,
+    InternalServerError,
+    Api404Error,
+} = require("../modules/CustomError");
 
 module.exports = {
     async checKExistCart(cardId) {
         return await cartModel.findById(cardId).lean();
+    },
+
+    async findCartByUserId(userId) {
+        return await cartModel.findOne({
+            cart_userId: new Types.ObjectId(userId),
+        });
     },
 
     async createCart(userId, productToAdd) {
@@ -34,7 +44,10 @@ module.exports = {
         } else {
             return await cartModel.findOneAndUpdate(
                 { cart_userId: new Types.ObjectId(userId) },
-                { $push: { cart_products: productToAdd } },
+                {
+                    $push: { cart_products: productToAdd },
+                    $inc: { cart_count_product: quantity },
+                },
                 options
             );
         }
@@ -61,8 +74,7 @@ module.exports = {
         );
 
         const quantity = foundProduct?.cart_products[0]?.quantity;
-        if (!quantity)
-            throw new BadRequest("Product may be not exist in cart");
+        if (!quantity) throw new BadRequest("Product may be not exist in cart");
 
         const filter = { cart_userId: userId };
         const update = {

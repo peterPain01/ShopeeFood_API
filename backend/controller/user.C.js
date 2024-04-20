@@ -12,12 +12,13 @@ module.exports = {
 
     async getUserById(req, res) {
         const { userId } = req.user;
-        if (!userId) throw new BadRequest("Missing some information");
-        const user = await User.findById({ _id: userId });
+        const user = await User.findById(userId);
         if (!user) throw new Api404Error("User Not Found");
+        console.log(user);
+
         res.status(200).json(
             getInfoData({
-                fields: ["_id", "email", "created_at"],
+                fields: ["phone", "created_at", "avatar", "bio", "fullname"],
                 object: user,
             })
         );

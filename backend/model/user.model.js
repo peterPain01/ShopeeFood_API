@@ -15,17 +15,17 @@ const userSchema = new Schema({
     },
     password: { type: String, required: [true] },
 
-    address: {
+    addresses: {
         type: Array,
         default: [],
     },
-    birth_date: { type: String },
+    birth_date: { type: Date },
     gender: {
         type: String,
         enum: ["male", "female"],
     },
     roles: { type: Number },
-
+    bio: { type: String },
     created_at: {
         type: Date,
         default: Date.now,

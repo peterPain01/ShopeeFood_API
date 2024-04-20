@@ -166,7 +166,7 @@ module.exports = {
     },
 
     async getTopRatedShops(req, res) {
-        const { limit = 10, skip = 0 } = req.query;
+        const { limit = 50, skip = 0 } = req.query;
         const select = ["name", "image", "category", "address", "avg_rating"];
         const shopTopRated = await shopModel
             .find({})

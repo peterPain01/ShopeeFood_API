@@ -10,6 +10,7 @@ const productService = require("../services/product.service");
 
 module.exports = {
     // ============== access db [4 TIMES] in bad case
+    // call 1 add product to cart function 
     async addProductToCart(req, res) {
         const { userId } = req.user;
         const { id: productId } = req.params;
@@ -23,7 +24,9 @@ module.exports = {
         const productToAdd = {
             productId: foundProduct._id,
             name: foundProduct.product_name,
-            price: foundProduct.product_price,
+            price: foundProduct?.product_discounted_price
+                ? foundProduct?.product_discounted_price
+                : foundProduct?.product_original_price,
             quantity: 1,
         };
 
@@ -103,7 +106,6 @@ module.exports = {
             );
         res.status(200).json(updatedCart);
     },
-
 
     async incProductQuantity(req, res) {
         const { userId } = req.user;
