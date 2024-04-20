@@ -12,7 +12,6 @@ const shopSchema = new Schema(
             type: String,
             required: true,
         },
-
         description: {
             type: String,
             required: true,
@@ -24,6 +23,12 @@ const shopSchema = new Schema(
 
         address: {
             type: String,
+            required: true, 
+        },
+
+        category: {
+            type: Array,
+            required: true, 
         },
 
         status: {

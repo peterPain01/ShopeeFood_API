@@ -13,6 +13,9 @@ router.get(
     errorHandler(ShopController.searchProductInShop)
 );
 
+// [GET]
+router.get("/shop/category", errorHandler(ShopController.getShopByCategory))
+
 router.get(
     "/shop/drafts",
     verifyToken,

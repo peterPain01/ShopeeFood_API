@@ -10,6 +10,7 @@ const productSchema = new Schema({
         required: true,
         enum: ["MilkTea", "Rice", "Noodles"],
     },
+    product_price: { type: Number, require: true },
     
     product_shop: { type: Types.ObjectId, ref: "Shop", required: true },
     product_sold: { type: Number, default: 0 },
@@ -24,13 +25,11 @@ const productSchema = new Schema({
         },
     ],
 
-    // 
     isDraft: { type: Boolean, default: true, index: true, select: false },
     isPublished: { type: Boolean, default: false, index: true, select: false },
 });
 
-// create index for search 
+// create index for search
 productSchema.index({ product_name: "text", product_description: "text" });
 
 module.exports = model("Product", productSchema);
-

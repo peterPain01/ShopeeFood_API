@@ -147,4 +147,9 @@ module.exports = {
 
         res.status(200).json(foundProducts);
     },
+
+    async getShopByCategory(req, res)
+    { 
+        
+    }
 };

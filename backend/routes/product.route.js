@@ -9,7 +9,7 @@ router.get(
 ); 
 
 router.get("/products", errorHandler(productController.getAllProducts));
+router.get("/products/shop/:id", errorHandler(productController.getAllProductsByShop));
 router.get("/product/:id", errorHandler(productController.getProductById));
-router.get("/product/shop/:id", errorHandler(productController.getAllProductsByShop));
 
 module.exports = router;
