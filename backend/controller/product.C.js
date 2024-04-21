@@ -67,7 +67,7 @@ module.exports = {
             next(new InternalServerError(err.message));
         }
     },
-    
+
     async searchProduct(req, res) {
         const { keySearch } = req.params;
         if (!keySearch) throw new BadRequest("Missing required arguments");
@@ -75,8 +75,8 @@ module.exports = {
         const results = await productService.searchProduct(keySearch);
         if (!results)
             throw new InternalServerError("Error when search product");
-        return res.status(200).json(results);
+        return res
+            .status(200)
+            .json({ message: "Successfully", metadata: results });
     },
-
-   
 };

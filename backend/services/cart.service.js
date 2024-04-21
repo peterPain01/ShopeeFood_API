@@ -26,21 +26,25 @@ module.exports = {
     },
 
     async addProductToCart(userId, productToAdd) {
-        const { productId, quantity } = productToAdd;
+        const { productId, quantity, price } = productToAdd;
         const filter = {
             cart_userId: new Types.ObjectId(userId),
             "cart_products.productId": productId,
         };
-        const update = {
-            $inc: {
-                "cart_products.$.quantity": quantity,
-                cart_count_product: quantity,
-            },
-        };
-        const options = { new: true };
+
         const foundProduct = await cartModel.findOne(filter);
+
         if (foundProduct) {
-            return await cartModel.findOneAndUpdate(filter, update, options);
+            const update = {
+                $inc: {
+                    "cart_products.$.quantity": quantity,
+                    "cart_products.$.price": price,
+                    cart_count_product: quantity,
+                },
+            };
+            return await cartModel.findOneAndUpdate(filter, update, {
+                new: true,
+            });
         } else {
             return await cartModel.findOneAndUpdate(
                 { cart_userId: new Types.ObjectId(userId) },

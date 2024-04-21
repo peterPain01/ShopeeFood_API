@@ -5,10 +5,15 @@ const { verifyToken } = require("../utils/auth");
 const orderController = require("../controller/order.C");
 
 router.get(
-    "/order/checkout",
+    "/order/sub/checkout",
     verifyToken,
     errorHandler(orderController.checkoutReview)
 );
 
+router.get(
+    "/order/checkout",
+    verifyToken,
+    errorHandler(orderController.checkout)
+);
 
-module.exports = router
+module.exports = router;

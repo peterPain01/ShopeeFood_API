@@ -38,10 +38,19 @@ module.exports = {
             .lean();
     },
 
-    async getProductById({ product_id, unSelect }) {
+    async getProductById({ product_id, unSelect, select }) {
+        let unSelectFields = {};
+        let selectedFields = {};
+        if (unSelect) unSelectFields = unSelectData(unSelect);
+        if (select) selectedFields = getSelectData(select);
+        console.log({
+            ...unSelectFields,
+            ...selectedFields,
+        });
         return await productModel
             .findById(new Types.ObjectId(product_id))
-            .select(unSelectData(unSelect));
+            .select({ ...unSelectFields, ...selectedFields })
+            .lean();
     },
 
     async deleteProductById(filter) {

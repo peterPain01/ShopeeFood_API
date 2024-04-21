@@ -17,7 +17,7 @@ module.exports = {
             new Date(start_date) < Date.now() ||
             new Date(end_date) < new Date(start_date)
         )
-            throw new BadRequest("Start day must be before end day");
+            throw new BadRequest("Start date must be before end date");
 
         const foundDiscount = await discountModel
             .findOne({
@@ -32,7 +32,10 @@ module.exports = {
             shopId
         );
         if (!newDiscount) throw new BadRequest("Discount Failure Create");
-        res.status(200).json(newDiscount);
+        res.status(200).json({
+            message: "Successfully",
+            metadata: newDiscount,
+        });
     },
 
     async updateDiscount(req, res) {
@@ -51,7 +54,10 @@ module.exports = {
             { $set: updateBody },
             { new: true }
         );
-        res.status(200).json(updatedDiscount);
+        res.status(200).json({
+            message: "Successfully",
+            metadata: updatedDiscount,
+        });
     },
 
     async getDiscountByShopId(req, res) {
@@ -75,7 +81,7 @@ module.exports = {
             select,
         });
         if (!discounts) throw new Api404Error("Discounts Not Found");
-        res.status(200).send(discounts);
+        res.status(200).json({ message: "Successfully", metadata: discounts });
     },
 
     // get discount available with product
@@ -87,9 +93,9 @@ module.exports = {
             product_id
         );
         if (!discounts)
-            throw new Api404Error("Discounts for this product not found");
+            throw new Api404Error("Discount for this product not found");
 
-        return res.status(200).json(discounts);
+        res.status(200).json({ message: "Successfully", metadata: discounts });
     },
 
     async deleteDiscountByShop(req, res) {
@@ -107,6 +113,6 @@ module.exports = {
         };
         const { deletedCount } = await discountModel.deleteOne(filter);
         if (!deletedCount) throw new Api404Error("Not Found Discount");
-        res.status(200).send("Discount Successfully Deleted");
+        res.status(200).json({ message: "Discount Successfully Deleted" });
     },
 };

@@ -20,9 +20,13 @@ module.exports = {
             throw new ConflictRequest("UserId used to register shop");
 
         const new_shop = await shopModel.create({ ...shop_data, _id: userId });
+
         if (!new_shop) throw new InternalServerError("Shop Failure Create");
         console.log(new_shop);
-        res.status(201).json(new_shop);
+        res.status(201).json({
+            message: "Shop Successfully Created",
+            metadata: new_shop,
+        });
     },
 
     async getAllDraftsForShop(req, res) {
@@ -63,7 +67,7 @@ module.exports = {
     async createProduct(req, res) {
         const product_data = req.body;
         const { userId: shopId } = req.user;
-        if (!product_data) throw new BadRequest("Missing some product data");
+        if (!product_data) throw new BadRequest("Missing data of product");
 
         const foundShop = await shopService.findShopById(shopId);
         if (!foundShop) throw new Api404Error("ShopId Not Found");
@@ -135,7 +139,7 @@ module.exports = {
 
     async searchProductInShop(req, res) {
         const { keySearch, shopId } = req.params;
-        if (!keySearch || shopId)
+        if (!keySearch || !shopId)
             throw new BadRequest("Missing required arguments");
 
         const foundProducts = await shopService.searchProductInShop(
@@ -145,15 +149,18 @@ module.exports = {
         if (!foundProducts)
             throw new Api404Error("Products Empty in this shop");
 
-        res.status(200).json(foundProducts);
+        res.status(200).json({
+            message: "Successfully",
+            metadata: foundProducts,
+        });
     },
 
     async getShopByCategory(req, res) {
         const { limit = 10, skip = 0, category } = req.params;
         if (!category) throw new BadRequest("Missing required arguments");
-        const filter = {};
+
         const shopsWithCategory = await shopModel
-            .find({})
+            .find({ category: category })
             .limit(limit)
             .skip(skip);
 
@@ -162,7 +169,10 @@ module.exports = {
                 "Error when finding shop by category"
             );
 
-        res.status(200).json(shopsWithCategory);
+        res.status(200).json({
+            message: "Successfully",
+            metadata: shopsWithCategory,
+        });
     },
 
     async getTopRatedShops(req, res) {
@@ -179,6 +189,9 @@ module.exports = {
             throw new InternalServerError(
                 "Error occurred when get all top rated shop "
             );
-        res.status(200).json(shopTopRated);
+        res.status(200).json({
+            message: "Successfully",
+            metadata: shopTopRated,
+        });
     },
 };

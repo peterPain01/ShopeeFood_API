@@ -1,4 +1,3 @@
-const { Types } = require("mongoose");
 const cartModel = require("../model/cart.model");
 const {
     Api404Error,
@@ -10,7 +9,7 @@ const productService = require("../services/product.service");
 
 module.exports = {
     // ============== access db [4 TIMES] in bad case
-    // call 1 add product to cart function 
+    // call 1 add product to cart function
     async addProductToCart(req, res) {
         const { userId } = req.user;
         const { id: productId } = req.params;
@@ -24,9 +23,7 @@ module.exports = {
         const productToAdd = {
             productId: foundProduct._id,
             name: foundProduct.product_name,
-            price: foundProduct?.product_discounted_price
-                ? foundProduct?.product_discounted_price
-                : foundProduct?.product_original_price,
+            price: foundProduct.product_discounted_price,
             quantity: 1,
         };
 
@@ -51,22 +48,19 @@ module.exports = {
                     );
             }
         }
-        res.status(200).json("Product Successfully Added to Cart");
+        res.status(200).json({ message: "Product Successfully Added to Cart" });
     },
 
     // GET cart
     async getCart(req, res) {
         const { userId } = req.user;
-        const cart = await cartModel.findOne({
-            cart_userId: userId,
-        });
+        const cart = await cartService.findCartByUserId(userId);
 
         if (!cart) throw new Api404Error("Cart Not Found");
-        return res.status(200).json(cart);
+        return res
+            .status(200)
+            .json({ message: "Successfully", metadata: cart });
     },
-
-    // delete product in cart
-    // reduce cart_count_product when remove product from cart
 
     async removeProductFromCart(req, res) {
         const { userId } = req.user;
@@ -77,34 +71,37 @@ module.exports = {
             product_id,
             userId
         );
-        res.status(200).send(modifiedCart);
+        res.status(200).json({
+            message: "Product successfully deleted",
+            metadata: modifiedCart,
+        });
     },
 
-    // delete cart
     async deleteCart(req, res) {
         const { userId } = req.user;
         const { deletedCount } = await cartService.deleteCartByUserId(userId);
-        if (!deletedCount) throw Api404Error("Cant not delete this cart");
+        if (!deletedCount) throw new Api404Error("Cart not found");
         res.status(200).json({ message: "Cart Successfully Deleted" });
     },
 
-    // reduce product quantity
-    // remove product from cart if quantity equals 0
     async reduceProductQuantity(req, res) {
         const { userId } = req.user;
         const { product_id } = req.params;
+        if (!product_id) throw new BadRequest("Missing required arguments");
 
         let updatedCart = await cartService.reduceProductQuantity(
             product_id,
             userId
         );
-        console.log(updatedCart);
         if (!updatedCart)
             updatedCart = await cartService.removeProductFormCart(
                 product_id,
                 userId
             );
-        res.status(200).json(updatedCart);
+        res.status(200).json({
+            message: "Cart Successfully Updated",
+            metadata: updatedCart,
+        });
     },
 
     async incProductQuantity(req, res) {

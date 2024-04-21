@@ -5,7 +5,6 @@ const { getInfoData } = require("../utils");
 module.exports = {
     async getAllCategory(req, res) {
         let categories = await categoryModel.find({});
-        console.log(categories);
         if (!categories)
             throw new InternalServerError("Error when finding all categories");
         categories = categories.map((category) => {
@@ -15,6 +14,6 @@ module.exports = {
             };
         });
         console.log(categories);
-        res.status(200).send(categories);
+        res.status(200).json({ message: "Successfully", metadata: categories });
     },
 };
