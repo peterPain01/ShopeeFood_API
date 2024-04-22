@@ -9,15 +9,17 @@ const cartRouter = require("./cart.route");
 const flashSaleRouter = require("./flash_sale.route");
 const categoryRouter = require("./category.route");
 const orderRouter = require("./order.route");
+
 router.use(authRouter);
 
 router.use(userRouter);
-router.use(shopRouter);
 router.use(productRouter);
 router.use(discountRouter);
 router.use(cartRouter);
 router.use(flashSaleRouter);
 router.use(categoryRouter);
-router.use(orderRouter);
+router.use("/order", orderRouter);
+
+router.use(shopRouter);
 
 module.exports = router;

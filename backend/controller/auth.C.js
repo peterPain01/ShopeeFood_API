@@ -8,6 +8,7 @@ const {
     InternalServerError,
 } = require("../modules/CustomError.js");
 const { getAuthTokenAndStore } = require("../utils/auth.js");
+const otpService = require("../services/otpService.js");
 
 module.exports = {
     async signup(req, res) {
@@ -20,8 +21,10 @@ module.exports = {
             throw new ConflictRequest("Phone was registered");
         }
 
+        const msg = otpService.sendOTP();
+        console.log(msg);
+        
         const encrypted_pass = await bcrypt.hash(String(password), SALTROUND);
-        const credential = phone ? phone : email;
 
         const newUser = await User.create({
             phone,

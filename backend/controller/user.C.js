@@ -3,7 +3,6 @@ const { BadRequest, Api404Error } = require("../modules/CustomError.js");
 const { getInfoData } = require("../utils/index.js");
 
 module.exports = {
-    // only admin role
     async getAllUser(req, res) {
         const users = await User.find();
         if (!users) throw new Error("Users Not Found");
@@ -14,7 +13,6 @@ module.exports = {
         const { userId } = req.user;
         const user = await User.findById(userId);
         if (!user) throw new Api404Error("User Not Found");
-        console.log(user);
 
         res.status(200).json(
             getInfoData({

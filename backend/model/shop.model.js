@@ -37,7 +37,7 @@ const shopSchema = new Schema(
         },
 
         category: {
-            type: Array,
+            type: [String],
             required: true,
         },
 
@@ -52,12 +52,15 @@ const shopSchema = new Schema(
             default: false,
         },
 
-        
         owner: { type: Schema.Types.ObjectId, ref: "User" },
 
         avg_rating: {
             type: Number,
         },
+
+        open_hour: { type: Date, required: true },
+
+        close_hour: { type: Date, required: true },
     },
     {
         timestamps: true,

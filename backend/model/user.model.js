@@ -1,36 +1,39 @@
 const { Schema, model, Types } = require("mongoose");
 
-const userSchema = new Schema({
-    fullname: { type: String },
-    avatar: { type: String },
-    email: {
-        type: String,
-        unique: true,
-        sparse: true,
-    },
-    phone: {
-        type: String,
-        unique: true,
-        sparse: true,
-    },
-    password: { type: String, required: [true] },
+const userSchema = new Schema(
+    {
+        fullname: String,
+        avatar: String,
+        email: {
+            type: String,
+            unique: true,
+            sparse: true,
+        },
+        phone: {
+            type: String,
+            unique: true,
+            sparse: true,
+        },
+        password: { type: String, required: true },
 
-    addresses: {
-        type: Array,
-        default: [],
+        addresses: {
+            type: Array,
+            default: [],
+        },
+        birth_date: { type: Date },
+        gender: {
+            type: String,
+            enum: ["male", "female"],
+        },
+        roles: {
+            type: [String],
+            enum: ["user", "admin", "shipper", "shop"],
+            default: ["user"],
+        },
+        bio: String,
     },
-    birth_date: { type: Date },
-    gender: {
-        type: String,
-        enum: ["male", "female"],
-    },
-    roles: { type: Number },
-    bio: { type: String },
-    created_at: {
-        type: Date,
-        default: Date.now,
-    },
-});
+    { timestamps: true }
+);
 
 // create index for phone
 userSchema.index({ phone: 1 });

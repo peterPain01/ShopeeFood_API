@@ -12,7 +12,7 @@ module.exports = {
     // call 1 add product to cart function
     async addProductToCart(req, res) {
         const { userId } = req.user;
-        const { id: productId } = req.params;
+        const { productId } = req.query;
         const foundProduct = await productService.checKExistProduct(productId);
         if (!foundProduct) throw new Api404Error("Product Not Found");
 
@@ -116,5 +116,24 @@ module.exports = {
 
         if (!updatedCart) throw new BadRequest("Product not exist in cart");
         res.status(200).json(updatedCart);
+    },
+
+    async createNote(req, res) {
+        const { userId } = req.user;
+        const { note } = req.body;
+        if (!note) throw new BadRequest("Missing order note in body request");
+
+        const update = {
+            $set: {
+                cart_note: note,
+            },
+        };
+        const cart = await cartService.findCartByUserIdAndUpdate(
+            userId,
+            update
+        );
+        if (!cart) throw Api404Error("Cart not found");
+
+        res.status(200).json({ message: "Successfully" });
     },
 };

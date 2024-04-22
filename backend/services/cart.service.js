@@ -17,6 +17,15 @@ module.exports = {
         });
     },
 
+    async findCartByUserIdAndUpdate(userId, update) {
+        return await cartModel.findOneAndUpdate(
+            {
+                cart_userId: new Types.ObjectId(userId),
+            },
+            update
+        );
+    },
+
     async createCart(userId, productToAdd) {
         return await cartModel.create({
             cart_products: [productToAdd],

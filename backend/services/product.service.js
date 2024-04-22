@@ -9,10 +9,21 @@ const {
 
 module.exports = {
     async createProduct(product, shopId) {
-        return await productModel.create({
-            ...product,
-            product_shop: new Types.ObjectId(shopId),
-        });
+        const unSelect = [
+            "product_shop",
+            "product_sold",
+            "product_like",
+            "isDraft",
+            "isPublished",
+            "_id",
+            "product_comments",
+            "__v",
+        ];
+        return await productModel
+            .create({
+                ...product,
+                product_shop: new Types.ObjectId(shopId),
+            })
     },
 
     async updateProduct({ product_id, shopId, bodyUpdate }) {

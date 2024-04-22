@@ -18,22 +18,42 @@ module.exports = {
 
     async getFeeShip() {},
 
-    async getSubOrderInfo(userId, list_product) {
+    async getSubOrderInfo(userId, list_product, note) {
         let subPrice = await this.countSubPriceOfCart(list_product);
         // let shippingFee = await this.getFeeShip(userId, shopId);
         let shippingFee = await this.getFeeShip(userId);
-        let total = subPrice + shippingFee ? shippingFee : 0;
-        return { subPrice, shippingFee, unit: "VND", list_product, totalPrice };
+
+        // plus shippingFee
+        let totalPrice = subPrice;
+
+        let subOrderInfo = {
+            subPrice,
+            shippingFee,
+            unit: "VND",
+            list_product,
+            totalPrice,
+        };
+        if (note) subOrderInfo = { ...subOrderInfo, note };
+        return subOrderInfo;
     },
 
-    async createOrder(userId) {
-        const orderInfo = await this.getSubOrderInfo();
+    async createOrder(userId, orderInfo) {
         return await orderModel.create({
             order_user: userId,
             order_totalPrice: orderInfo.totalPrice,
             order_subPrice: orderInfo.subPrice,
             order_listProducts: orderInfo.list_product,
+            order_note: orderInfo.note,
             // order_discountUsed:
         });
+    },
+
+    async findOrderByUserId(userId, skip = 0, limit = 10) {
+        return await orderModel
+            .find({
+                order_user: userId,
+            })
+            .skip(skip)
+            .limit(limit);
     },
 };

@@ -4,11 +4,15 @@ const cartController = require("../controller/cart.C");
 const { verifyToken } = require("../utils/auth");
 const errorHandler = require("../utils/errorHandler");
 
+
 router.post(
-    "/cart/:id",
+    "/cart/",
     verifyToken,
     errorHandler(cartController.addProductToCart)
 );
+
+router.post("/cart/note", verifyToken, errorHandler(cartController.createNote));
+
 router.get("/cart", verifyToken, errorHandler(cartController.getCart));
 router.delete("/cart", verifyToken, errorHandler(cartController.deleteCart));
 

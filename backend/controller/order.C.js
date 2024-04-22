@@ -1,6 +1,7 @@
 const { Api404Error, InternalServerError } = require("../modules/CustomError");
 const cartService = require("../services/cart.service");
 const orderService = require("../services/order.service");
+const paymentService = require("../services/payment.service");
 module.exports = {
     /* 
         originalPrice // gia chua giam 
@@ -19,7 +20,8 @@ module.exports = {
         const orderInfo = await orderService.getSubOrderInfo(
             userId,
             // shopId,
-            foundCart.cart_products
+            foundCart.cart_products,
+            foundCart.cart_note
         );
         if (!orderInfo) throw new InternalServerError("Create Order Failure");
         res.status(200).json({
@@ -38,16 +40,34 @@ module.exports = {
         const orderInfo = await orderService.getSubOrderInfo(
             userId,
             // shopId,
-            foundCart.cart_products
+            foundCart.cart_products,
+            foundCart.cart_note
         );
 
         if (!orderInfo) throw new InternalServerError("Create Order Failure");
-        const createdOrder = await orderService.createOrder(userId);
+
+        const createdOrder = await orderService.createOrder(userId, orderInfo);
+
         if (!createdOrder)
             throw new InternalServerError("Error when create order info");
+
+        let metadata = createdOrder;
+        if (foundCart.note)
+            metadata = { ...createdOrder, note: foundCart.note };
+
         res.status(201).json({
             message: "Order Successful Created",
-            metadata: createdOrder,
+            metadata,
         });
+    },
+
+    async handleVnpResult(req, res) {
+        const result = paymentService.getVnPayResult(req);
+        res.status(200).send(result);
+    },
+
+    async getVnpUrl(req, res) {
+        const VnpUrl = paymentService.getVnpUrl(req);
+        res.status(200).send(VnpUrl);
     },
 };

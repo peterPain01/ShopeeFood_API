@@ -14,7 +14,7 @@ module.exports = {
     async verifyToken(req, res, next) {
         try {
             const userId = req.headers["x-client-id"];
-            if (!userId) throw new BadRequest("Missing required arguments");
+            if (!userId) throw new BadRequest("Missing required arguments in header section");
 
             const accessToken = req.headers["x-authorization"];
             if (!accessToken) throw new BadRequest("No token provided");
@@ -24,7 +24,9 @@ module.exports = {
 
             jwt.verify(accessToken, keyStore.publicKey, (err, decodedUser) => {
                 if (err)
-                    throw new AuthFailureError("Token is invalid or expired");
+                    throw new AuthFailureError(
+                        "Access Token is invalid or expired"
+                    );
                 else {
                     req.keyStore = keyStore;
                     req.user = decodedUser;
@@ -37,22 +39,23 @@ module.exports = {
     },
 
     async getAuthTokenAndStore(req, res) {
-        const newUser = req.user;
+        const user = req.user;
 
         const publicKey = crypto.randomBytes(64).toString("hex");
         const privateKey = crypto.randomBytes(64).toString("hex");
 
         const tokens = await KeyTokenService.createTokenPairs(
             {
-                userId: newUser._id,
-                phone: newUser.phone,
+                userId: user._id,
+                phone: user.phone,
+                roles: user.roles,
             },
             publicKey,
             privateKey
         );
 
         const publicKeyStored = await KeyTokenService.createToken({
-            userId: newUser._id,
+            userId: user._id,
             publicKey,
             privateKey,
             refreshToken: tokens.refreshToken,
@@ -65,7 +68,7 @@ module.exports = {
             tokens,
             user: getInfoData({
                 fields: ["_id", "phone"],
-                object: newUser,
+                object: user,
             }),
         });
     },
@@ -79,14 +82,14 @@ module.exports = {
 
         const keyStore = await KeyTokenService.findByUserId(userId);
         if (!keyStore) throw new Api404Error("KeyStore not found");
-        
+
         if (keyStore.refreshTokensUsed.includes(refreshToken)) {
             await KeyTokenService.removeTokenById(keyStore._id);
             throw new AuthFailureError(
                 "RefreshToken is invalid, pls login again"
             );
         }
-        
+
         if (keyStore.refreshToken !== refreshToken)
             throw new AuthFailureError("Invalid refresh token");
 
@@ -118,5 +121,24 @@ module.exports = {
         );
 
         res.status(200).json(newTokens);
+    },
+
+    async verifyAdmin(req, res, next) {
+        try {
+            if (req?.user?.roles?.indexOf("admin") > -1) return next();
+            next(new AuthFailureError("Authenticate Failure"));
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    async verifyShop(req, res, next) {
+        try {
+            console.log(req.user)
+            if (req?.user?.roles?.indexOf("shop") > -1) return next();
+            next(new AuthFailureError("Authenticate Failure"));
+        } catch (err) {
+            next(err);
+        }
     },
 };

@@ -77,7 +77,10 @@ module.exports = {
             shopId
         );
         if (!createdProduct) throw new BadRequest("Product failure create");
-        res.status(200).json(createdProduct);
+        res.status(200).json({
+            message: "Product Successful Created",
+            metadata: createdProduct,
+        });
     },
 
     async updateProduct(req, res) {
