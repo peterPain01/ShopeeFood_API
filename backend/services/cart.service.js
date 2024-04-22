@@ -13,37 +13,38 @@ module.exports = {
 
     async findCartByUserId(userId) {
         return await cartModel.findOne({
-            cart_userId: new Types.ObjectId(userId),
+            cart_user: new Types.ObjectId(userId),
         });
     },
 
     async findCartByUserIdAndUpdate(userId, update) {
         return await cartModel.findOneAndUpdate(
             {
-                cart_userId: new Types.ObjectId(userId),
+                cart_user: new Types.ObjectId(userId),
             },
             update
         );
     },
 
-    async createCart(userId, productToAdd) {
+    async createCart(userId, shopId, productToAdd) {
         return await cartModel.create({
             cart_products: [productToAdd],
-            cart_userId: userId,
+            cart_user: userId,
             cart_count_product: 1,
+            cart_shop: shopId,
         });
     },
 
-    async addProductToCart(userId, productToAdd) {
+    async addProductToCart(userId, shopId, productToAdd) {
         const { productId, quantity, price } = productToAdd;
         const filter = {
-            cart_userId: new Types.ObjectId(userId),
+            cart_user: new Types.ObjectId(userId),
             "cart_products.productId": productId,
         };
 
-        const foundProduct = await cartModel.findOne(filter);
+        const foundProductInCart = await cartModel.findOne(filter);
 
-        if (foundProduct) {
+        if (foundProductInCart) {
             const update = {
                 $inc: {
                     "cart_products.$.quantity": quantity,
@@ -56,7 +57,7 @@ module.exports = {
             });
         } else {
             return await cartModel.findOneAndUpdate(
-                { cart_userId: new Types.ObjectId(userId) },
+                { cart_user: new Types.ObjectId(userId) },
                 {
                     $push: { cart_products: productToAdd },
                     $inc: { cart_count_product: quantity },
@@ -68,7 +69,7 @@ module.exports = {
 
     async deleteCartByUserId(userId) {
         const filter = {
-            cart_userId: new Types.ObjectId(userId),
+            cart_user: new Types.ObjectId(userId),
         };
         return await cartModel.deleteOne(filter);
     },
@@ -76,7 +77,7 @@ module.exports = {
     async removeProductFormCart(productId, userId) {
         const foundProduct = await cartModel.findOne(
             {
-                cart_userId: userId,
+                cart_user: userId,
                 "cart_products.productId": new Types.ObjectId(productId),
             },
             {
@@ -89,7 +90,7 @@ module.exports = {
         const quantity = foundProduct?.cart_products[0]?.quantity;
         if (!quantity) throw new BadRequest("Product may be not exist in cart");
 
-        const filter = { cart_userId: userId };
+        const filter = { cart_user: userId };
         const update = {
             $pull: {
                 cart_products: { productId: new Types.ObjectId(productId) },
@@ -103,7 +104,7 @@ module.exports = {
 
     async reduceProductQuantity(product_id, userId) {
         const filter = {
-            cart_userId: userId,
+            cart_user: userId,
             "cart_products.productId": new Types.ObjectId(product_id),
             "cart_products.quantity": { $gt: 1 },
         };
@@ -118,7 +119,7 @@ module.exports = {
 
     async incProductQuantity(product_id, userId) {
         const filter = {
-            cart_userId: userId,
+            cart_user: userId,
             "cart_products.productId": new Types.ObjectId(product_id),
         };
         const update = {

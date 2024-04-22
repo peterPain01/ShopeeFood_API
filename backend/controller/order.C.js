@@ -19,27 +19,30 @@ module.exports = {
 
         const orderInfo = await orderService.getSubOrderInfo(
             userId,
-            // shopId,
             foundCart.cart_products,
             foundCart.cart_note
         );
         if (!orderInfo) throw new InternalServerError("Create Order Failure");
         res.status(200).json({
-            message: "Order Successful Created",
+            message: "Review Order Info",
             metadata: orderInfo,
         });
     },
 
-    async checkout(req, res) {
+    async checkoutCash(req, res) {
         const { userId } = req.user;
 
         const foundCart = await cartService.findCartByUserId(userId);
-        if (!foundCart || !foundCart?.cart_products)
-            throw new Api404Error("Cart Not Found");
+        if (!foundCart || !foundCart?.cart_products.length)
+            throw new Api404Error("Cart Not Found Or Empty");
 
-        const orderInfo = await orderService.getSubOrderInfo(
+        const paymentMethod = "cash";
+        const shopId = foundCart.cart_shop;
+
+        const orderInfo = await orderService.getOrderInfo(
             userId,
-            // shopId,
+            shopId,
+            paymentMethod,
             foundCart.cart_products,
             foundCart.cart_note
         );

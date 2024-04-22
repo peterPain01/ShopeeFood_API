@@ -11,7 +11,8 @@ const cartSchema = new Schema(
         cart_products: { type: Array, required: true },
         cart_note: { type: String },
         cart_count_product: { type: Number, default: 0 },
-        cart_userId: { type: Types.ObjectId, required: true, ref: "User" },
+        cart_user: { type: Types.ObjectId, required: true, ref: "User" },
+        cart_shop: { type: Types.ObjectId, required: true, ref: "User" },
     },
     {
         timestamps: {

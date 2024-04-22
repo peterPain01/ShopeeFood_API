@@ -37,14 +37,35 @@ module.exports = {
         return subOrderInfo;
     },
 
+    async getOrderInfo(userId, shopId, paymentMethod, list_products, note) {
+        let subPrice = await this.countSubPriceOfCart(list_products);
+        // let shippingFee = await this.getFeeShip(userId, shopId);
+        let shippingFee = await this.getFeeShip(userId);
+
+        // plus shippingFee
+        let totalPrice = subPrice;
+
+        let orderInfo = {
+            subPrice,
+            shippingFee,
+            unit: "VND",
+            list_products,
+            totalPrice,
+            shopId,
+            paymentMethod,
+        };
+        if (note) orderInfo = { ...orderInfo, note };
+        return orderInfo;
+    },
     async createOrder(userId, orderInfo) {
         return await orderModel.create({
             order_user: userId,
+            order_shop: orderInfo.shopId,
             order_totalPrice: orderInfo.totalPrice,
             order_subPrice: orderInfo.subPrice,
-            order_listProducts: orderInfo.list_product,
+            order_listProducts: orderInfo.list_products,
             order_note: orderInfo.note,
-            // order_discountUsed:
+            order_payment_method: orderInfo.paymentMethod,
         });
     },
 

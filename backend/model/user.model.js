@@ -4,6 +4,8 @@ const userSchema = new Schema(
     {
         fullname: String,
         avatar: String,
+        state: { type: String, enum: ["active", "ban"], default: "active" },
+        verify: { type: Boolean, default: false },
         email: {
             type: String,
             unique: true,

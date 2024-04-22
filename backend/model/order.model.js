@@ -1,13 +1,20 @@
 const { Schema, model } = require("mongoose");
 
 const orderSchema = new Schema({
-    order_state: { type: String, enum: ["pending", "success", "failure"] },
+    order_state: {
+        type: String,
+        enum: ["pending", "success", "failure"],
+        default: "pending",
+    },
     order_user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
-    order_delivery_man: {
+    
+    // store shop id and shop address
+    order_shop: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+    order_shipper: {
         type: Schema.Types.ObjectId,
-        required: true,
         ref: "User",
     },
+
     order_totalPrice: { type: Number, required: true },
     order_subPrice: { type: Number, required: true },
     order_listProducts: { type: Array, required: true },
