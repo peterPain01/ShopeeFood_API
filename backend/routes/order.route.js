@@ -12,6 +12,8 @@ router.get(
 
 router.get("/checkout/cash", verifyToken, errorHandler(orderController.checkoutCash));
 
+
+// 
 router.post("/create_payment_url", errorHandler(orderController.getVnpUrl));
 router.get("/vnpay_return", errorHandler(orderController.handleVnpResult));
 

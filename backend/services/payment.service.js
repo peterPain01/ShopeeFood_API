@@ -1,6 +1,9 @@
 const moment = require("moment");
+const config = require("../config/vnpay");
+
 let querystring = require("qs");
 let crypto = require("crypto");
+
 module.exports = {
     /*
      Function will create a redirect url for user choose payment method 
@@ -17,8 +20,6 @@ module.exports = {
             req.connection.remoteAddress ||
             req.socket.remoteAddress ||
             req.connection.socket.remoteAddress;
-
-        let config = require("config");
 
         let tmnCode = config.get("vnp_TmnCode");
         let secretKey = config.get("vnp_HashSecret");

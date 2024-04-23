@@ -8,9 +8,35 @@ const {
     InternalServerError,
 } = require("../modules/CustomError.js");
 const { getAuthTokenAndStore } = require("../utils/auth.js");
-const otpService = require("../services/otpService.js");
+const otpService = require("../services/otp.service.js");
+const { OTP_DIGITS } = require("../config/common.js");
 
 module.exports = {
+    async verifyOTP(req, res) {
+        const { otp, phone, password } = req.body;
+        if (!otp || !phone || !password)
+            throw new BadRequest("Missing required arguments");
+
+        const isValidOTP = await otpService.validateOTP(phone, otp);
+        if (!isValidOTP) throw new BadRequest("Invalid OTP");
+
+        await otpService.deleteOTPByPhone(phone);
+
+        // CREATE USER
+        const encrypted_pass = await bcrypt.hash(String(password), SALTROUND);
+        const newUser = await User.create({
+            phone,
+            password: encrypted_pass,
+        });
+        console.log(newUser);
+        if (!newUser) throw new InternalServerError("User failure created");
+
+        res.status(200).json({
+            message: "Created User Success",
+            metadata: {},
+        });
+    },
+
     async signup(req, res) {
         const { phone, password } = req.body;
         if (!phone || !password)
@@ -21,24 +47,14 @@ module.exports = {
             throw new ConflictRequest("Phone was registered");
         }
 
-        const msg = otpService.sendOTP();
-        console.log(msg);
-        
-        const encrypted_pass = await bcrypt.hash(String(password), SALTROUND);
+        const generatedOTP = await otpService.generateOTP(OTP_DIGITS);
+        const storedOTP = await otpService.storeOTP(phone, generatedOTP);
 
-        const newUser = await User.create({
-            phone,
-            password: encrypted_pass,
+        if (!storedOTP) throw new InternalServerError("Error when stored OTP ");
+
+        res.status(200).json({
+            message: `Create OTP Successful ${generatedOTP}`,
         });
-        console.log(newUser);
-        if (!newUser) throw new InternalServerError("User failure created");
-
-        req.user = newUser;
-        try {
-            await getAuthTokenAndStore(req, res);
-        } catch (err) {
-            throw new Error(err.message);
-        }
     },
 
     async login(req, res) {
