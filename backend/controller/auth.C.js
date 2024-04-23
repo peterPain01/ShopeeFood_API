@@ -9,7 +9,6 @@ const {
 } = require("../modules/CustomError.js");
 const { getAuthTokenAndStore } = require("../utils/auth.js");
 const otpService = require("../services/otp.service.js");
-const { OTP_DIGITS } = require("../config/common.js");
 
 module.exports = {
     async verifyOTP(req, res) {
@@ -17,10 +16,8 @@ module.exports = {
         if (!otp || !phone || !password)
             throw new BadRequest("Missing required arguments");
 
-        const isValidOTP = await otpService.validateOTP(phone, otp);
+        const isValidOTP = await otpService.checkOTP(phone, otp);
         if (!isValidOTP) throw new BadRequest("Invalid OTP");
-
-        await otpService.deleteOTPByPhone(phone);
 
         // CREATE USER
         const encrypted_pass = await bcrypt.hash(String(password), SALTROUND);
@@ -47,10 +44,11 @@ module.exports = {
             throw new ConflictRequest("Phone was registered");
         }
 
-        const generatedOTP = await otpService.generateOTP(OTP_DIGITS);
-        const storedOTP = await otpService.storeOTP(phone, generatedOTP);
-
-        if (!storedOTP) throw new InternalServerError("Error when stored OTP ");
+        try {
+            const verification = await otpService.sendOTPViaCall(phone);
+        } catch (err) {
+            console.log(err);
+        }
 
         res.status(200).json({
             message: `Create OTP Successful ${generatedOTP}`,
