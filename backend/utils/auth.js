@@ -132,7 +132,9 @@ module.exports = {
     async verifyAdmin(req, res, next) {
         try {
             if (req.user.role === "admin") return next();
-            next(new AuthFailureError("Authenticate Failure"));
+            new AuthFailureError(
+                `Authenticate Failure !!! Your Role is ${req.user.role}`
+            );
         } catch (err) {
             next(err);
         }
@@ -142,7 +144,23 @@ module.exports = {
         try {
             console.log(req.user);
             if (req.user.role === "shop") return next();
-            next(new AuthFailureError("Authenticate Failure"));
+            new AuthFailureError(
+                `Authenticate Failure !!! Your Role is ${req.user.role}`
+            );
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    async verifyUser(req, res, next) {
+        try {
+            console.log(req.user);
+            if (req.user.role === "user") return next();
+            next(
+                new AuthFailureError(
+                    `Authenticate Failure !!! Your Role is ${req.user.role}`
+                )
+            );
         } catch (err) {
             next(err);
         }

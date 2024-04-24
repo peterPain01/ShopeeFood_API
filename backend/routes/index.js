@@ -18,10 +18,10 @@ router.use("/order", orderRouter);
 router.use("/shipper", shipperRouter);
 router.use("/admin", adminRouter);
 router.use("/shop", shopRouter);
-router.use(userRouter);
 router.use("/product", productRouter);
-router.use(discountRouter);
-router.use(cartRouter);
+router.use("/discount", discountRouter);
+router.use("/user", userRouter);
+router.use("/cart", cartRouter);
 router.use(flashSaleRouter);
 router.use(categoryRouter);
 

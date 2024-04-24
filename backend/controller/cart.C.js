@@ -37,7 +37,12 @@ module.exports = {
             );
             if (!newCart)
                 throw new InternalServerError("Error while creating cart");
-            return res.status(200).json("Product Successfully Added to Cart");
+            return res
+                .status(200)
+                .json({
+                    message: "Product Successfully Added to Cart",
+                    metadata: newCart,
+                });
         } else {
             if (!foundCart?.cart_products?.length) {
                 foundCart.cart_products = [productToAdd];
@@ -47,7 +52,11 @@ module.exports = {
             } else {
                 console.log(foundProduct.product_shop, foundCart.cart_shop);
 
-                if (foundProduct.product_shop.toString().includes(foundCart.cart_shop))
+                if (
+                    !foundProduct.product_shop
+                        .toString()
+                        .includes(foundCart.cart_shop)
+                )
                     throw new BadRequest(
                         "Only 1 shop per cart, We wil update later"
                     );
@@ -62,7 +71,10 @@ module.exports = {
                     );
             }
         }
-        res.status(200).json({ message: "Product Successfully Added to Cart" });
+        res.status(200).json({
+            message: "Product Successfully Added to Cart",
+            metadata: [],
+        });
     },
 
     async getCart(req, res) {

@@ -1,5 +1,6 @@
 const productService = require("../services/product.service");
 const orderModel = require("../model/order.model");
+const { default: mongoose } = require("mongoose");
 
 module.exports = {
     async countSubPriceOfCart(list_product) {
@@ -58,15 +59,37 @@ module.exports = {
         return orderInfo;
     },
     async createOrder(userId, orderInfo) {
-        return await orderModel.create({
-            order_user: userId,
-            order_shop: orderInfo.shopId,
-            order_totalPrice: orderInfo.totalPrice,
-            order_subPrice: orderInfo.subPrice,
-            order_listProducts: orderInfo.list_products,
-            order_note: orderInfo.note,
-            order_payment_method: orderInfo.paymentMethod,
-        });
+        const session = await mongoose.startSession();
+        session.startTransaction();
+
+        try {
+            const newOrder = await orderModel.create({
+                order_user: userId,
+                order_shop: orderInfo.shopId,
+                order_totalPrice: orderInfo.totalPrice,
+                order_subPrice: orderInfo.subPrice,
+                order_listProducts: orderInfo.list_products,
+                order_note: orderInfo.note,
+                order_paymentMethod: orderInfo.paymentMethod,
+            });
+
+            for (product of newOrder.order_listProducts) {
+                const update = {
+                    $inc: { product_sold: product.quantity },
+                };
+                await productService.getProductByIdAndUpdate(
+                    product.productId,
+                    update
+                );
+            }
+            return newOrder;
+
+            
+        } catch (err) {
+            await session.abortTransaction();
+            session.endSession();
+            throw error;
+        }
     },
 
     async findOrderByUserId(userId, skip = 0, limit = 10) {

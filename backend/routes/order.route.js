@@ -1,17 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const errorHandler = require("../utils/errorHandler");
-const { verifyToken } = require("../utils/auth");
+const { verifyToken, verifyUser } = require("../utils/auth");
 const orderController = require("../controller/order.C");
 
-router.get(
-    "/sub/checkout",
-    verifyToken,
-    errorHandler(orderController.checkoutReview)
-);
+// Only user can order 
+router.use(verifyToken, verifyUser);
 
-router.get("/checkout/cash", verifyToken, errorHandler(orderController.checkoutCash));
-
+router.get("/sub/checkout", errorHandler(orderController.checkoutReview));
+router.get("/checkout/cash", errorHandler(orderController.checkoutCash));
 router.post("/create_payment_url", errorHandler(orderController.getVnpUrl));
 router.get("/vnpay_return", errorHandler(orderController.handleVnpResult));
 

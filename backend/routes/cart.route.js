@@ -4,33 +4,28 @@ const cartController = require("../controller/cart.C");
 const { verifyToken } = require("../utils/auth");
 const errorHandler = require("../utils/errorHandler");
 
+router.use(verifyToken);
 
-router.post(
-    "/cart/",
-    verifyToken,
-    errorHandler(cartController.addProductToCart)
-);
+router.get("", errorHandler(cartController.getCart));
 
-router.post("/cart/note", verifyToken, errorHandler(cartController.createNote));
+router.post("", errorHandler(cartController.addProductToCart));
 
-router.get("/cart", verifyToken, errorHandler(cartController.getCart));
-router.delete("/cart", verifyToken, errorHandler(cartController.deleteCart));
+router.delete("", errorHandler(cartController.deleteCart));
+
+router.post("/note", errorHandler(cartController.createNote));
 
 router.patch(
-    "/cart/remove/product/:product_id",
-    verifyToken,
+    "/remove/product/:product_id",
     errorHandler(cartController.removeProductFromCart)
 );
 
 router.patch(
-    "/cart/reduce/product/:product_id",
-    verifyToken,
+    "/reduce/product/:product_id",
     errorHandler(cartController.reduceProductQuantity)
 );
 
 router.patch(
-    "/cart/inc/product/:product_id",
-    verifyToken,
+    "/inc/product/:product_id",
     errorHandler(cartController.incProductQuantity)
 );
 

@@ -4,8 +4,7 @@ const router = express.Router();
 const errorHandler = require("../utils/errorHandler");
 const { verifyToken } = require("../utils/auth");
 
-router.get("/user", verifyToken, errorHandler(UserController.getUserById));
-router.patch("/user", verifyToken, errorHandler(UserController.update));
-
+router.get("/", verifyToken, errorHandler(UserController.getUserById));
+router.patch("/", verifyToken, errorHandler(UserController.update));
 
 module.exports = router;

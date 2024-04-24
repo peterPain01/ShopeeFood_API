@@ -6,6 +6,7 @@ const {
     removeNestedNullUndefined,
     NestedObjectParser,
 } = require("../utils/index");
+const { update } = require("lodash");
 
 module.exports = {
     async createProduct(product, shopId) {
@@ -37,7 +38,13 @@ module.exports = {
         });
     },
 
-    async getAllProducts({ limit, sort, page, filter, select = {} }) {
+    async getAllProducts({
+        limit = 50,
+        sort,
+        page = 1,
+        filter = {},
+        select = {},
+    }) {
         const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
         return await productModel
             .find(filter)
@@ -80,5 +87,15 @@ module.exports = {
 
     async checKExistProduct(productId) {
         return await productModel.findById(productId).lean();
+    },
+
+    async getProductByIdAndUpdate(productId, update) {
+        return await productModel.findByIdAndUpdate(productId, update);
+    },
+
+    async getTrendingProduct(shopId) {
+        return await productModel
+            .find({ product_shop: shopId })
+            .sort({ product_sold: -1 });
     },
 };

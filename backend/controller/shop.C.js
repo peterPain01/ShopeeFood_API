@@ -9,18 +9,35 @@ const { Types } = require("mongoose");
 const shopService = require("../services/shop.service");
 const productService = require("../services/product.service");
 const userModel = require("../model/user.model");
+const shopUtils = require("../utils/shop");
 
 module.exports = {
     async createShop(req, res) {
         const { userId } = req.user;
         const shop_data = req.body;
-        if (!shop_data) throw new BadRequest("Missing some information");
+        if (!shop_data || !shop_data.open_hour || !shop_data.close_hour)
+            throw new BadRequest("Missing some information");
 
         const foundShop = await shopService.findShopById(userId);
         if (foundShop)
             throw new ConflictRequest("UserId was used to register shop");
 
-        const new_shop = await shopModel.create({ ...shop_data, _id: userId });
+        if (
+            !shopUtils.isValidOpenCloseHour(
+                shop_data.open_hour,
+                shop_data.close_hour
+            )
+        )
+            throw new BadRequest("Open or Close Hour invalid format HH:mm");
+
+        console.log(req.file);
+        const new_shop = await shopModel.create({
+            ...shop_data,
+            _id: userId,
+            owner: userId,
+            image: req.file.path,
+        });
+
         if (!new_shop) throw new InternalServerError("Shop Failure Create");
 
         const user = await userModel.findByIdAndUpdate(userId, {
