@@ -18,7 +18,7 @@ module.exports = {
         if (!foundProduct) throw new Api404Error("Product Not Found");
 
         const foundCart = await cartModel.findOne({
-            cart_userId: userId,
+            cart_user: userId,
         });
 
         const productToAdd = {
@@ -45,7 +45,9 @@ module.exports = {
                 foundCart.cart_shop = shopId;
                 await foundCart.save();
             } else {
-                if (foundProduct.product_shop !== foundCart.cart_shopId)
+                console.log(foundProduct.product_shop, foundCart.cart_shop);
+
+                if (foundProduct.product_shop.toString().includes(foundCart.cart_shop))
                     throw new BadRequest(
                         "Only 1 shop per cart, We wil update later"
                     );

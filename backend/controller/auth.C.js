@@ -16,8 +16,8 @@ module.exports = {
         if (!otp || !phone || !password)
             throw new BadRequest("Missing required arguments");
 
-        const isValidOTP = await otpService.checkOTP(phone, otp);
-        if (!isValidOTP) throw new BadRequest("Invalid OTP");
+        // const isValidOTP = await otpService.checkOTP(phone, otp);
+        // if (!isValidOTP) throw new BadRequest("Invalid OTP");
 
         // CREATE USER
         const encrypted_pass = await bcrypt.hash(String(password), SALTROUND);
@@ -44,15 +44,26 @@ module.exports = {
             throw new ConflictRequest("Phone was registered");
         }
 
-        try {
-            const verification = await otpService.sendOTPViaCall(phone);
-        } catch (err) {
-            console.log(err);
-        }
+         // try {
+        //     const verification = await otpService.sendOTPViaCall(phone);
+        // } catch (err) {
+        //     console.log(err);
+        // }
+        
+        const encrypted_pass = await bcrypt.hash(String(password), SALTROUND);
+        const newUser = await User.create({
+            phone,
+            password: encrypted_pass,
+        });
+
+        console.log(newUser);
+        if (!newUser) throw new InternalServerError("User failure created");
 
         res.status(200).json({
-            message: `Create OTP Successful ${generatedOTP}`,
+            message: "Created User Success",
+            metadata: {},
         });
+      
     },
 
     async login(req, res) {
@@ -78,7 +89,6 @@ module.exports = {
         console.log(keyStore);
         if (!keyStore) throw new BadRequest("Missing some information");
         await KeyTokenService.removeTokenById(keyStore.id);
-        res.clearCookie("refreshToken");
         res.status(200).json("User Successfully Logout");
     },
 };

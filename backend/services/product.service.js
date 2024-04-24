@@ -19,11 +19,10 @@ module.exports = {
             "product_comments",
             "__v",
         ];
-        return await productModel
-            .create({
-                ...product,
-                product_shop: new Types.ObjectId(shopId),
-            })
+        return await productModel.create({
+            ...product,
+            product_shop: new Types.ObjectId(shopId),
+        });
     },
 
     async updateProduct({ product_id, shopId, bodyUpdate }) {
@@ -38,7 +37,7 @@ module.exports = {
         });
     },
 
-    async getAllProducts({ limit, sort, page, filter, select }) {
+    async getAllProducts({ limit, sort, page, filter, select = {} }) {
         const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
         return await productModel
             .find(filter)

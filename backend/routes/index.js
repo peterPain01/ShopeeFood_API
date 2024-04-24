@@ -10,17 +10,19 @@ const flashSaleRouter = require("./flash_sale.route");
 const categoryRouter = require("./category.route");
 const orderRouter = require("./order.route");
 const shipperRouter = require("./shipper.router");
+const adminRouter = require("./admin.route");
 
 router.use("/auth", authRouter);
 
+router.use("/order", orderRouter);
+router.use("/shipper", shipperRouter);
+router.use("/admin", adminRouter);
+router.use("/shop", shopRouter);
 router.use(userRouter);
-router.use(productRouter);
+router.use("/product", productRouter);
 router.use(discountRouter);
 router.use(cartRouter);
 router.use(flashSaleRouter);
 router.use(categoryRouter);
-router.use("/order", orderRouter);
-router.use("/shipper", shipperRouter);
-router.use(shopRouter);
 
 module.exports = router;

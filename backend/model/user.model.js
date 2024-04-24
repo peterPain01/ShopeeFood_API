@@ -27,10 +27,10 @@ const userSchema = new Schema(
             type: String,
             enum: ["male", "female"],
         },
-        roles: {
-            type: [String],
+        role: {
+            type: String,
             enum: ["user", "admin", "shipper", "shop"],
-            default: ["user"],
+            default: "user",
         },
         bio: String,
     },

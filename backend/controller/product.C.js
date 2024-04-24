@@ -29,8 +29,10 @@ module.exports = {
 
     // get all products (from specific shop)
     async getAllProductsByShop(req, res, next) {
-        const { limit = 50, sort = "ctime", page = 1, id: shopId } = req.params;
+        const { limit = 50, sort = "ctime", page = 1 } = req.params;
+        const { shopId } = req.query;
         if (!shopId) throw new BadRequest("Missing required arguments");
+
         try {
             const filter = {
                 isPublished: true,
@@ -44,8 +46,10 @@ module.exports = {
                 filter,
                 select,
             });
-            if (!products.length) throw new Api404Error("Products Not Found");
-            return res.status(200).json(products);
+
+            return res
+                .status(200)
+                .json({ message: "Product", metadata: products ?? [] });
         } catch (err) {
             next(new InternalServerError(err.message));
         }
@@ -53,7 +57,7 @@ module.exports = {
 
     async getProductById(req, res, next) {
         try {
-            const { id: product_id } = req.params;
+            const { productId: product_id } = req.query;
             if (!product_id) throw new BadRequest("Missing required arguments");
 
             const found_products = await productService.getProductById({
@@ -61,8 +65,10 @@ module.exports = {
                 unSelect: ["__v"],
             });
 
-            if (!found_products) throw new Api404Error("Not Found Products");
-            return res.status(200).json(found_products);
+            if (!found_products) throw new Api404Error("Product Not Found");
+            return res
+                .status(200)
+                .json({ message: "Success", metadata: found_products });
         } catch (err) {
             next(new InternalServerError(err.message));
         }

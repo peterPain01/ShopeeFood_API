@@ -5,13 +5,27 @@ const {
     Api404Error,
     ForbiddenRequest,
 } = require("../modules/CustomError");
+const cartService = require("../services/cart.service");
 const discountService = require("../services/discount.service");
 const { Types } = require("mongoose");
+const orderService = require("../services/order.service");
 
 module.exports = {
     async createDiscount(req, res) {
         const { userId: shopId } = req.user;
-        const { code, start_date, end_date } = req.body;
+        const {
+            name,
+            description,
+            code,
+            start_date,
+            end_date,
+            type,
+            value,
+            usage_limit,
+            max_use_per_user,
+            min_order_value,
+            is_active,
+        } = req.body;
 
         if (
             new Date(start_date) < Date.now() ||
@@ -84,14 +98,24 @@ module.exports = {
         res.status(200).json({ message: "Successfully", metadata: discounts });
     },
 
-    // get discount available with product
-    async getDiscountByProduct(req, res) {
-        const { product_id } = req.params;
-        if (!product_id) throw new BadRequest("Missing required arguments");
+    // get discount available with cart
+    async getDiscountByCart(req, res) {
+        const { userId } = req.user;
 
-        const discounts = await discountService.findDiscountByProduct(
-            product_id
+        const foundCart = await cartService.findCartByUserId(userId);
+        if (!foundCart) throw new Api404Error("Cart Not Found");
+
+        const cartPrice = await orderService.countSubPriceOfCart(
+            foundCart.cart_products
         );
+        if (!cartPrice) throw new BadRequest("Error when count Sub Price");
+
+        const discounts = await discountService.findDiscountAvailableForCart(
+            foundCart.cart_shop,
+            foundCart.cart_user,
+            cartPrice
+        );
+
         if (!discounts)
             throw new Api404Error("Discount for this product not found");
 

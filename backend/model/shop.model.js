@@ -35,11 +35,7 @@ const shopSchema = new Schema(
             type: Object,
             required: true,
         },
-
-        category: {
-            type: [String],
-            required: true,
-        },
+        category: [{ type: Types.ObjectId, ref: "Category" }],
 
         status: {
             type: String,
@@ -58,9 +54,9 @@ const shopSchema = new Schema(
             type: Number,
         },
 
-        open_hour: { type: Date, required: true },
+        open_hour: { type: String, required: true },
 
-        close_hour: { type: Date, required: true },
+        close_hour: { type: String, required: true },
     },
     {
         timestamps: true,

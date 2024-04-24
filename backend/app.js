@@ -5,7 +5,7 @@ const cors = require("cors");
 const compression = require("compression");
 const { default: helmet } = require("helmet");
 require("./services/initMongoDatabase");
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 
 const {
     Api404Error,
@@ -41,6 +41,5 @@ app.use((req, res, next) => {
 app.use(logErrorMiddleware);
 app.use(returnError);
 
-app.listen(PORT, () => {
-    console.log(`Example app listening on port ${PORT}`);
-});
+module.exports = app;
+

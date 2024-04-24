@@ -16,10 +16,11 @@ const { verifyToken, verifyShop } = require("../utils/auth");
             1. Delivery discount 
 
 */
-//  [GET] discount available with product
+//  [GET] discount available with cart 
 router.get(
-    "/discount/product/:product_id",
-    errorHandler(discountController.getDiscountByProduct)
+    "/discount/cart/",
+    verifyToken, 
+    errorHandler(discountController.getDiscountByCart)
 );
 
 //  [GET] all discount of Shop

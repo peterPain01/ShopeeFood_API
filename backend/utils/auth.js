@@ -14,7 +14,10 @@ module.exports = {
     async verifyToken(req, res, next) {
         try {
             const userId = req.headers["x-client-id"];
-            if (!userId) throw new BadRequest("Missing required arguments in header section");
+            if (!userId)
+                throw new BadRequest(
+                    "Missing required arguments in header section"
+                );
 
             const accessToken = req.headers["x-authorization"];
             if (!accessToken) throw new BadRequest("No token provided");
@@ -48,7 +51,7 @@ module.exports = {
             {
                 userId: user._id,
                 phone: user.phone,
-                roles: user.roles,
+                role: user.role,
             },
             publicKey,
             privateKey
@@ -65,11 +68,14 @@ module.exports = {
             throw new InternalServerError("publicKeyStored error");
 
         return res.status(201).json({
-            tokens,
-            user: getInfoData({
-                fields: ["_id", "phone"],
-                object: user,
-            }),
+            message: "Success",
+            metadata: {
+                tokens,
+                user: getInfoData({
+                    fields: ["_id", "phone", "role"],
+                    object: user,
+                }),
+            },
         });
     },
 
@@ -125,7 +131,7 @@ module.exports = {
 
     async verifyAdmin(req, res, next) {
         try {
-            if (req?.user?.roles?.indexOf("admin") > -1) return next();
+            if (req.user.role === "admin") return next();
             next(new AuthFailureError("Authenticate Failure"));
         } catch (err) {
             next(err);
@@ -134,8 +140,8 @@ module.exports = {
 
     async verifyShop(req, res, next) {
         try {
-            console.log(req.user)
-            if (req?.user?.roles?.indexOf("shop") > -1) return next();
+            console.log(req.user);
+            if (req.user.role === "shop") return next();
             next(new AuthFailureError("Authenticate Failure"));
         } catch (err) {
             next(err);

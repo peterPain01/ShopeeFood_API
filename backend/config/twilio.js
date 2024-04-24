@@ -5,5 +5,6 @@ module.exports = {
     AUTH_TOKEN: process.env.AUTH_TOKEN,
     VERIFY_SERVICE: process.env.VERIFY_SERVICE,
     SECRET: process.env.SECRET,
-    PHONE_SERVER: process.env.PHONE_SERVER
+    PHONE_SERVER: process.env.PHONE_SERVER,
+    SERVICE_ID: process.env.SERVICE_ID
 };

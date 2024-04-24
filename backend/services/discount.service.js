@@ -14,11 +14,7 @@ module.exports = {
             is_active,
             min_order_value,
             usage_limit,
-            max_uses_per_user,
-            applies_to,
-            products_id,
-            users_used,
-            uses_count,
+            max_use_per_user,
         } = payload;
         return await discountModel.create({
             discount_shopId: new Types.ObjectId(shopId),
@@ -31,20 +27,19 @@ module.exports = {
             discount_end_date: new Date(end_date),
             discount_min_order_value: min_order_value || 0,
             discount_usage_limit: +usage_limit,
-            discount_uses_count: uses_count,
-            discount_users_used: users_used,
             discount_shopId: shopId,
-            discount_max_uses_per_user: max_uses_per_user,
+            discount_max_use_per_user: max_use_per_user,
             discount_is_active: is_active,
-            discount_applies_to: applies_to,
-            discount_products_id:
-                applies_to === "all" || !applies_to
-                    ? []
-                    : products_id.map((id) => new Types.ObjectId(id)),
         });
     },
 
-    async findAllDiscount({ limit = 50, sort, page = 1, filter, select }) {
+    async findAllDiscount({
+        limit = 50,
+        sort,
+        page = 1,
+        filter = {},
+        select = {},
+    }) {
         const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
         return await discountModel
             .find(filter)
@@ -55,25 +50,63 @@ module.exports = {
             .lean();
     },
 
-    async findDiscountByProduct(product_id) {
+    async findAllNotActiveDiscount() {
         const filter = {
-            $or: [
-                { discount_applies_to: "all" },
-                {
-                    discount_applies_to: "specific",
-                    discount_products_id: new Types.ObjectId(product_id),
-                },
-            ],
+            discount_is_active: false,
         };
+        return await discountModel.find({ filter });
+    },
+
+    async findAllActiveDiscount() {
+        const filter = {
+            discount_is_active: true,
+        };
+        return await discountModel.find({ filter });
+    },
+
+    async findDiscountAvailableForCart(shopId, userId, cartValue) {
+        const filter = {
+            discount_shopId: shopId,
+            discount_min_order_value: { $lt: cartValue },
+            discount_is_active: true,
+            discount_usage_limit: { $gt: 0 },
+            discount_end_date: { $gt: Date.now() },
+        };
+
         const select = [
             "discount_name",
             "discount_code",
             "discount_type",
             "discount_value",
         ];
-        return await this.findAllDiscount({
+        let discounts = await this.findAllDiscount({
             filter,
             select,
         });
+        if (!discounts) return null;
+
+        discounts = this.checkUserUsed(discounts, userId);
+        if(!discounts) return null; 
+
+        return discounts;
+    },
+
+    checkUserUsed(discounts, userId) {
+        let filteredDiscount = [];
+        const max_use_per_user = discounts?.discount_max_use_per_user;
+        if (!max_use_per_user) return null;
+
+        for (const discount of discounts) {
+            const user_used = discount?.discount_users_used?.length;
+            if (user_used) {
+                const times = user_used.filter(
+                    (userUsedId) => userUsedId === userId
+                );
+                if (times < max_use_per_user) {
+                    filteredDiscount.push(discount);
+                }
+            }
+        }
+        return filteredDiscount;
     },
 };

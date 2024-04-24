@@ -1,5 +1,7 @@
 const { Schema, Types, model } = require("mongoose");
 
+// Discount sẽ apply theo giá trị giỏ hàng 
+
 const discountSchema = new Schema({
     discount_name: { type: String, required: true },
     discount_description: { type: String, required: true },
@@ -16,22 +18,13 @@ const discountSchema = new Schema({
     discount_usage_limit: { type: Number, required: true },
     discount_uses_count: { type: Number, default: 0 },
     discount_users_used: { type: Array, default: [] },
-    discount_max_uses_per_user: { type: Number, required: true },
+    discount_max_use_per_user: { type: Number, required: true },
 
     discount_min_order_value: { type: Number, required: true },
     discount_shopId: { type: Types.ObjectId, ref: "Shop", required: true },
 
     discount_is_active: { type: Boolean, default: true },
-    discount_applies_to: {
-        type: String,
-        enum: ["all", "specific"],
-        default: "all",
-    },
 
-    /*  if applies_tp is specific 
-    -> shop must be give list of product that apply discount 
-    */
-    discount_products_id: { type: Array, default: [] },
 });
 
 module.exports = model("Discount", discountSchema);

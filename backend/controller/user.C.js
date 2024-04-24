@@ -3,12 +3,6 @@ const { BadRequest, Api404Error } = require("../modules/CustomError.js");
 const { getInfoData } = require("../utils/index.js");
 
 module.exports = {
-    async getAllUser(req, res) {
-        const users = await User.find();
-        if (!users) throw new Error("Users Not Found");
-        return res.status(200).json(users);
-    },
-
     async getUserById(req, res) {
         const { userId } = req.user;
         const user = await User.findById(userId);

@@ -8,6 +8,7 @@ const shopModel = require("../model/shop.model");
 const { Types } = require("mongoose");
 const shopService = require("../services/shop.service");
 const productService = require("../services/product.service");
+const userModel = require("../model/user.model");
 
 module.exports = {
     async createShop(req, res) {
@@ -17,11 +18,16 @@ module.exports = {
 
         const foundShop = await shopService.findShopById(userId);
         if (foundShop)
-            throw new ConflictRequest("UserId used to register shop");
+            throw new ConflictRequest("UserId was used to register shop");
 
         const new_shop = await shopModel.create({ ...shop_data, _id: userId });
-
         if (!new_shop) throw new InternalServerError("Shop Failure Create");
+
+        const user = await userModel.findByIdAndUpdate(userId, {
+            $set: { roles: "shop" },
+        });
+        if (!user) throw new InternalServerError("Error when assign roles");
+
         console.log(new_shop);
         res.status(201).json({
             message: "Shop Successfully Created",
@@ -163,6 +169,7 @@ module.exports = {
         if (!category) throw new BadRequest("Missing required arguments");
 
         const shopsWithCategory = await shopModel
+            //   ==================== ====================
             .find({ category: category })
             .limit(limit)
             .skip(skip);
@@ -181,8 +188,9 @@ module.exports = {
     async getTopRatedShops(req, res) {
         const { limit = 50, skip = 0 } = req.query;
         const select = ["name", "image", "category", "address", "avg_rating"];
-        const shopTopRated = await shopModel
+        let shopTopRated = await shopModel
             .find({})
+            .populate("category")
             .sort({ avg_rating: 1 })
             .select(select)
             .skip(skip)
@@ -192,9 +200,42 @@ module.exports = {
             throw new InternalServerError(
                 "Error occurred when get all top rated shop "
             );
+
+        shopTopRated = JSON.parse(JSON.stringify(shopTopRated));
+        shopTopRated.forEach((shop) => {
+            if (shop.category) {
+                const temp = shop.category.map((cate) => {
+                    return {
+                        name: cate.category_name || "",
+                        image: cate.category_image || "",
+                    };
+                });
+                shop.category = temp;
+            } else shop.category = [];
+        });
+
         res.status(200).json({
             message: "Successfully",
             metadata: shopTopRated,
         });
+    },
+
+    async getShopInfo(req, res) {
+        const { shopId } = req.query;
+        console.log(shopId);
+        if (!shopId) throw new BadRequest("Missing required argument");
+
+        if (!Types.ObjectId.isValid(shopId))
+            throw new BadRequest("Shop Id is not in valid type");
+
+        const unSelect = ["roles", "verify", "status", "owner", "__v"];
+
+        const shopDetailInfo = await shopService.getDetailOfShop(
+            shopId,
+            unSelect
+        );
+        if (!shopDetailInfo) throw new Api404Error("Shop Not Found");
+
+        res.status(200).json({ message: "Success", metadata: shopDetailInfo });
     },
 };
