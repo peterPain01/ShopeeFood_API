@@ -26,13 +26,19 @@ module.exports = {
         });
     },
 
-    async updateProduct({ product_id, shopId, bodyUpdate }) {
+    async updateProduct({ productId, shopId, bodyUpdate, product_thumb }) {
         const filter = {
-            _id: new Types.ObjectId(product_id),
+            _id: new Types.ObjectId(productId),
             product_shop: new Types.ObjectId(shopId),
         };
-        removeNestedNullUndefined(bodyUpdate);
-        bodyUpdate = NestedObjectParser(bodyUpdate);
+        // removeNestedNullUndefined(bodyUpdate);
+        // bodyUpdate = NestedObjectParser(bodyUpdate);
+        if (product_thumb) {
+            bodyUpdate = {
+                ...bodyUpdate,
+                product_thumb,
+            };
+        }
         return await productModel.findOneAndUpdate(filter, bodyUpdate, {
             new: true,
         });
@@ -95,7 +101,7 @@ module.exports = {
 
     async getTrendingProduct(shopId) {
         return await productModel
-            .find({ product_shop: shopId })
+            .find({ product_shop: new Types.ObjectId(shopId) })
             .sort({ product_sold: -1 });
     },
 };

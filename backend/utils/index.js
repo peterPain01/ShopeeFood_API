@@ -1,5 +1,6 @@
 "use strict";
 const _ = require("lodash");
+const fs = require("fs");
 
 const getInfoData = ({ fields = [], object = {} }) => {
     return _.pick(object, fields);
@@ -38,10 +39,30 @@ const NestedObjectParser = (obj) => {
     return result;
 };
 
+const deleteFileByRelativePath = (filePath) => {
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            console.error("File does not exist or cannot be accessed");
+            return;
+        }
+
+        // Delete the file
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                console.error("Error deleting file:", err);
+                return;
+            }
+
+            console.log("File deleted successfully");
+        });
+    });
+};
+
 module.exports = {
     getInfoData,
     getSelectData,
     unSelectData,
     removeNestedNullUndefined,
-    NestedObjectParser
+    NestedObjectParser,
+    deleteFileByRelativePath,
 };

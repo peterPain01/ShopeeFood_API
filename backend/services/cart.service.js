@@ -62,7 +62,7 @@ module.exports = {
                     $push: { cart_products: productToAdd },
                     $inc: { cart_count_product: quantity },
                 },
-                options
+                { new: true }
             );
         }
     },

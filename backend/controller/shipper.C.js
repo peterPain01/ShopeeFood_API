@@ -8,35 +8,24 @@ const {
 const userModel = require("../model/user.model");
 const shipperService = require("../services/shipper.service");
 
+const STATIC_FILE_PATH = `http://localhost:${process.env.PORT}/`;
+
 module.exports = {
     async createShipper(req, res) {
-        const { userId, roles } = req.user;
-        const isAdmin = roles.indexOf("admin") !== -1;
-        const isShop = roles.indexOf("shop") !== -1;
-        const isShipper = roles.indexOf("shipper") !== -1;
+        const { userId } = req.user;
 
-        if (isAdmin || isShop || isShipper)
-            throw new BadRequest("Shop | Admin | Shipper cannot be Shipper");
         const foundShipper = await shipperService.findShipperById(userId);
         if (foundShipper)
             throw new ConflictRequest("Phone was used to register Driver");
 
-            const {
-            license_plate_number,
-            vehicle_image,
-            avatar,
-            currentPosition = {},
-        } = req.body;
+        const { license_plate_number, balance } = req.body;
+
+        const avatar = STATIC_FILE_PATH + req.files["avatar"][0].path;
+        const vehicle_image =
+            STATIC_FILE_PATH + req.files["vehicle_image"][0].path;
 
         const newShipper = await shipperModel.create({
             _id: new Types.ObjectId(userId),
-            currentPosition: {
-                address: "227 Nguyen Van Cu, Q5, TP.HCM",
-                latlng: {
-                    lat: "01012003",
-                    lng: "13123",
-                },
-            },
             license_plate_number,
             vehicle_image,
             avatar,
@@ -46,7 +35,7 @@ module.exports = {
         if (!newShipper) throw new BadRequest("Error for create new shipper");
 
         const user = await userModel.findByIdAndUpdate(userId, {
-            $set: { roles: "shipper" },
+            $set: { role: "shipper" },
         });
 
         //ROLLBACK

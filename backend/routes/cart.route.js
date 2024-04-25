@@ -6,9 +6,9 @@ const errorHandler = require("../utils/errorHandler");
 
 router.use(verifyToken);
 
-router.get("", errorHandler(cartController.getCart));
+router.get("/", errorHandler(cartController.getCart));
 
-router.post("", errorHandler(cartController.addProductToCart));
+router.post("/", errorHandler(cartController.addProductToCart));
 
 router.delete("", errorHandler(cartController.deleteCart));
 

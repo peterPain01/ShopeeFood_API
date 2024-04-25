@@ -31,21 +31,16 @@ const shopSchema = new Schema(
             } 
          }
         */
-        address: {
-            type: Object,
+        addresses: {
+            type: [Object],
             required: true,
         },
-        category: [{ type: Types.ObjectId, ref: "Category" }],
+        category: [{ type: Types.ObjectId, ref: "Category", required: true }],
 
         status: {
             type: String,
-            enum: ["active", "inactive"],
-            default: "inactive",
-        },
-
-        verify: {
-            type: Schema.Types.Boolean,
-            default: false,
+            enum: ["open", "close"],
+            default: "close",
         },
 
         owner: { type: Schema.Types.ObjectId, ref: "User" },

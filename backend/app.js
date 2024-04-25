@@ -16,6 +16,7 @@ const {
 const PORT = process.env.PORT || 8000;
 const app = express();
 
+app.use("/uploads/", express.static("uploads"));
 app.use(cors());
 app.use(express.json());
 app.use(
@@ -42,4 +43,3 @@ app.use(logErrorMiddleware);
 app.use(returnError);
 
 module.exports = app;
-

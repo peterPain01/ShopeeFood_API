@@ -3,16 +3,16 @@ const { Schema, Types, model } = require("mongoose");
 const productSchema = new Schema({
     product_name: { type: String, required: true },
     product_thumb: { type: String, required: true },
-    product_description: String,
+    product_description: { type: String, required: true },
 
     product_category: {
-        type: String,
+        type: Types.ObjectId,
+        ref: "Category",
         required: true,
-        enum: ["MilkTea", "Rice", "Noodles"],
     },
     product_discounted_price: { type: Number, require: true },
     product_original_price: { type: Number, require: true },
-    
+
     product_shop: { type: Types.ObjectId, ref: "Shop", required: true },
     product_sold: { type: Number, default: 0 },
     product_like: { type: Number, default: 0 },

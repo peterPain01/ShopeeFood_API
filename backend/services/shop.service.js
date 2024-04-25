@@ -25,12 +25,31 @@ module.exports = {
             .exec();
     },
 
-    async publishProductByShop({ filter, update }) {
-        return await productModel.findOneAndUpdate(filter, update);
+    async publishProductByShop(shopId, productId) {
+        const filter = {
+            product_shop: new Types.ObjectId(shopId),
+            _id: new Types.ObjectId(productId),
+        };
+        const update = {
+            isDraft: false,
+            isPublished: true,
+        };
+        const option = { new: true };
+        return await productModel.findOneAndUpdate(filter, update, option);
     },
 
-    async unPublishProductByShop({ filter, update }) {
-        return await productModel.findOneAndUpdate(filter, update);
+    async unPublishProductByShop(shopId, productId) {
+        const filter = {
+            product_shop: new Types.ObjectId(shopId),
+            _id: new Types.ObjectId(productId),
+        };
+
+        const update = {
+            isDraft: true,
+            isPublished: false,
+        };
+        const option = { new: true };
+        return await productModel.findOneAndUpdate(filter, update, option);
     },
 
     async findShopById(shopId) {
@@ -53,21 +72,22 @@ module.exports = {
     },
 
     async getDetailOfShop(shopId, unSelect) {
-        let shops = await shopModel
+        let shop = await shopModel
             .findById(shopId)
             .populate("category")
             .select(unSelectData(unSelect));
+        if (!shop) return null;
 
-        shops = JSON.parse(JSON.stringify(shops));
-        if (shops.category) {
-            shops.category = shops?.category.map((cate) => {
+        shop = JSON.parse(JSON.stringify(shop));
+        if (shop.category) {
+            shop.category = shop?.category.map((cate) => {
                 return {
                     name: cate.category_name || "",
                     image: cate.category_image || "",
                 };
             });
-        } else shops.category = [];
+        } else shop.category = [];
 
-        return shops;
+        return shop;
     },
 };

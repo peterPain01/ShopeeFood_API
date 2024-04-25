@@ -21,7 +21,9 @@ module.exports = {
                 select,
             });
             if (!products.length) throw new Api404Error("Not Found Products");
-            return res.status(200).json(products);
+            return res
+                .status(200)
+                .json({ message: "Success", metadata: products });
         } catch (err) {
             next(new InternalServerError(err.message));
         }
@@ -32,13 +34,21 @@ module.exports = {
         const { limit = 50, sort = "ctime", page = 1 } = req.params;
         const { shopId } = req.query;
         if (!shopId) throw new BadRequest("Missing required arguments");
-
+        console.log(shopId);
         try {
             const filter = {
                 isPublished: true,
+                isDraft: false,
                 product_shop: new Types.ObjectId(shopId),
             };
-            const select = ["product_name", "product_price", "product_thumb"];
+            const select = [
+                "product_name",
+                "product_discounted_price",
+                "product_original_price",
+                "product_thumb",
+                "product_description",
+            ];
+
             const products = await productService.getAllProducts({
                 limit,
                 sort,
@@ -47,9 +57,10 @@ module.exports = {
                 select,
             });
 
-            return res
-                .status(200)
-                .json({ message: "Product", metadata: products ?? [] });
+            return res.status(200).json({
+                message: "Product",
+                metadata: products ? products : [],
+            });
         } catch (err) {
             next(new InternalServerError(err.message));
         }

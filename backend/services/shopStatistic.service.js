@@ -5,6 +5,9 @@ const productService = require("./product.service");
 module.exports = {
     // Default: current day
     async getStatisticNumberOrder(shopId) {
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
+        
         try {
             const filter = {
                 order_shop: shopId,
@@ -14,7 +17,15 @@ module.exports = {
                     {
                         $and: [
                             { order_state: "success" },
-                            { createdAt: { $eq: new Date() } },
+                            {
+                                createdAt: {
+                                    $gte: currentDate,
+                                    $lt: new Date(
+                                        currentDate.getTime() +
+                                            24 * 60 * 60 * 1000
+                                    ),
+                                },
+                            },
                         ],
                     },
                 ],
@@ -31,14 +42,16 @@ module.exports = {
                 (order) => order.order_state === "success"
             );
             const totalRevenue = this.countRevenueByOrders(successOrders);
-            const reportRevenue = getRevenueByHour;
-            const trendingProducts = this.getTrendingProduct(shopId);
+            // const reportRevenue = getRevenueByHour(successOrders);
+            console.log(orders);
+
+            const trendingProducts = await this.getTrendingProduct(shopId);
             return {
                 numPendingOrder: pendingOrders.length || 0,
                 numShippingOrder: shippingOrders.length || 0,
                 totalRevenue,
                 trendingProducts,
-                reportRevenue,
+                reportRevenue: [],
             };
         } catch (err) {
             throw new Error(err.message);
@@ -54,14 +67,7 @@ module.exports = {
 
     // get list san pham ban chay
     async getTrendingProduct(shopId) {
-        const trendingProductsOfShop = await productService.getTrendingProduct(
-            shopId
-        );
-
-        if (!trendingProductsOfShop)
-            throw new BadRequest("Shop have not products");
-
-        return trendingProductsOfShop;
+        return (await productService.getTrendingProduct(shopId)) || null;
     },
 
     getRevenueByHour(successOrdersInDay) {

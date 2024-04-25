@@ -2,9 +2,18 @@ const express = require("express");
 const UserController = require("../controller/user.C");
 const router = express.Router();
 const errorHandler = require("../utils/errorHandler");
-const { verifyToken } = require("../utils/auth");
+const { verifyToken, verifyUser } = require("../utils/auth");
+const { validateUpdateUser } = require("../validation/userValidation");
+const { upload } = require("../config/multer");
 
-router.get("/", verifyToken, errorHandler(UserController.getUserById));
-router.patch("/", verifyToken, errorHandler(UserController.update));
+router.use(verifyToken, verifyUser);
+
+router.get("/", errorHandler(UserController.getUserById));
+router.patch("/", validateUpdateUser, errorHandler(UserController.update));
+router.patch(
+    "/avatar",
+    upload.single("image"),
+    errorHandler(UserController.uploadAvt)
+);
 
 module.exports = router;

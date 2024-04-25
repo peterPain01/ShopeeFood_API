@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const moment = require("moment-timezone");
 
 const orderSchema = new Schema(
     {
@@ -38,4 +39,17 @@ const orderSchema = new Schema(
     { timestamps: true }
 );
 
+orderSchema.pre("save", function (next) {
+    const currentDate = new Date();
+    const currentTimezone = "Asia/Ho_Chi_Minh";
+    const currentUserDate = moment(currentDate)
+        .tz(currentTimezone)
+        .format("YYYY-MM-DD HH:mm:ss");
+
+    this.updatedAt = currentUserDate;
+    if (!this.createdAt) {
+        this.createdAt = currentUserDate;
+    }
+    next();
+});
 module.exports = model("Order", orderSchema);

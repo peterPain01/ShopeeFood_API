@@ -9,6 +9,7 @@ module.exports = {
             throw new InternalServerError("Error when finding all categories");
         categories = categories.map((category) => {
             return {
+                _id: category._id,
                 name: category.category_name,
                 image: category.category_image,
             };

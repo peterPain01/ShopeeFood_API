@@ -11,6 +11,8 @@ const productService = require("../services/product.service");
 const userModel = require("../model/user.model");
 const shopUtils = require("../utils/shop");
 
+const STATIC_FILE_PATH = `http://localhost:${process.env.PORT}/`;
+
 module.exports = {
     async createShop(req, res) {
         const { userId } = req.user;
@@ -35,13 +37,13 @@ module.exports = {
             ...shop_data,
             _id: userId,
             owner: userId,
-            image: req.file.path,
+            image: STATIC_FILE_PATH + req.file.path,
         });
 
         if (!new_shop) throw new InternalServerError("Shop Failure Create");
 
         const user = await userModel.findByIdAndUpdate(userId, {
-            $set: { roles: "shop" },
+            $set: { role: "shop" },
         });
         if (!user) throw new InternalServerError("Error when assign roles");
 
@@ -62,7 +64,7 @@ module.exports = {
             limit: 50,
         });
         if (!products) throw new Api404Error("All drafts Not Found");
-        res.status(200).json(products);
+        res.status(200).json({ message: "Success", metadata: products });
     },
 
     async getAllPublishForShop(req, res) {
@@ -74,17 +76,49 @@ module.exports = {
             limit: 50,
         });
         if (!products) throw new Api404Error("All drafts Not Found");
-        res.status(200).json(products);
+        res.status(200).json({ message: "Success", metadata: products });
     },
 
     async publishProductByShop(req, res) {
-        const update = { isDraft: false, isPublish: true };
-        await updateProductState(req, res, update);
+        const { userId: shopId } = req.user;
+        const { productId } = req.query;
+        if (!productId) throw new BadRequest("Missing required arguments ");
+
+        const updatedProduct = await shopService.publishProductByShop(
+            shopId,
+            productId
+        );
+
+        if (!updatedProduct)
+            throw new InternalServerError(
+                "Error occurred when publish product || Product Not Found"
+            );
+
+        res.status(200).json({
+            message: "Product Successfully Published",
+            metadata: {},
+        });
     },
 
     async unPublishProductsByShop(req, res) {
-        const update = { isDraft: true, isPublish: false };
-        await updateProductState(req, res, update);
+        const { userId: shopId } = req.user;
+        const { productId } = req.query;
+        if (!productId) throw new BadRequest("Missing required arguments ");
+
+        const updatedProduct = await shopService.unPublishProductByShop(
+            shopId,
+            productId
+        );
+
+        if (!updatedProduct)
+            throw new InternalServerError(
+                "Error occurred when publish product || Product Not Found"
+            );
+
+        res.status(200).json({
+            message: "Product Successfully UN_Published",
+            metadata: {},
+        });
     },
 
     async createProduct(req, res) {
@@ -96,7 +130,10 @@ module.exports = {
         if (!foundShop) throw new Api404Error("ShopId Not Found");
 
         const createdProduct = await productService.createProduct(
-            product_data,
+            {
+                ...product_data,
+                product_thumb: STATIC_FILE_PATH + req.file.path,
+            },
             shopId
         );
         if (!createdProduct) throw new BadRequest("Product failure create");
@@ -108,30 +145,36 @@ module.exports = {
 
     async updateProduct(req, res) {
         const { userId: shopId } = req.user;
-        const { id: product_id } = req.params;
+        const { productId } = req.query;
         const bodyUpdate = req.body;
-        if (!shopId || !product_id || !bodyUpdate)
+
+        let product_thumb = "";
+        if (req.file) {
+            product_thumb = STATIC_FILE_PATH + req.file.path;
+        }
+        if (!shopId || !productId || !bodyUpdate)
             throw new BadRequest("Missing required arguments");
 
         const updatedProduct = await productService.updateProduct({
-            product_id,
-            product_shop: shopId,
+            productId,
+            shopId,
             bodyUpdate,
+            product_thumb,
         });
 
         if (!updatedProduct)
-            throw new InternalServerError("Product Failure Update");
-        res.status(200).json(updatedProduct);
+            throw new InternalServerError("Product Not Found Or Server Error");
+        res.status(200).json({ message: "Product Successfully Updated" });
     },
 
     async deleteProduct(req, res, next) {
         try {
             const { userId: shopId } = req.user;
-            const { id: product_id } = req.params;
+            const { id: productId } = req.query;
 
-            if (!product_id) throw new BadRequest("Missing required arguments");
+            if (!productId) throw new BadRequest("Missing required arguments");
             const deleted_product = await productService.deleteProductById({
-                _id: new Types.ObjectId(product_id),
+                _id: new Types.ObjectId(productId),
                 product_shop: new Types.ObjectId(shopId),
             });
             if (deleted_product.deletedCount !== 1)
@@ -142,29 +185,8 @@ module.exports = {
         }
     },
 
-    async updateProductState(req, res, update) {
-        const userId = req.headers["x-client-id"];
-        const { product_id } = req.body;
-        if (!userId || !product_id)
-            throw new BadRequest("Missing some information");
-
-        const filter = {
-            product_shop: new Types.ObjectId(userId),
-            _id: new Types.ObjectId(product_id),
-        };
-
-        const updatedProduct = await shopService.updateProductByShop({
-            filter,
-            update,
-        });
-        if (!updatedProduct)
-            throw new InternalServerError("Product update failed");
-
-        res.status(200).json("Product successfully updated");
-    },
-
     async searchProductInShop(req, res) {
-        const { keySearch, shopId } = req.params;
+        const { keySearch, shopId } = req.query;
         if (!keySearch || !shopId)
             throw new BadRequest("Missing required arguments");
 
@@ -182,7 +204,7 @@ module.exports = {
     },
 
     async getShopByCategory(req, res) {
-        const { limit = 10, skip = 0, category } = req.params;
+        const { limit = 10, skip = 0, category } = req.query;
         if (!category) throw new BadRequest("Missing required arguments");
 
         const shopsWithCategory = await shopModel
@@ -223,6 +245,7 @@ module.exports = {
             if (shop.category) {
                 const temp = shop.category.map((cate) => {
                     return {
+                        _id: cate._id,
                         name: cate.category_name || "",
                         image: cate.category_image || "",
                     };
@@ -239,13 +262,12 @@ module.exports = {
 
     async getShopInfo(req, res) {
         const { shopId } = req.query;
-        console.log(shopId);
         if (!shopId) throw new BadRequest("Missing required argument");
 
         if (!Types.ObjectId.isValid(shopId))
             throw new BadRequest("Shop Id is not in valid type");
 
-        const unSelect = ["roles", "verify", "status", "owner", "__v"];
+        const unSelect = ["roles", "status", "owner", "__v"];
 
         const shopDetailInfo = await shopService.getDetailOfShop(
             shopId,

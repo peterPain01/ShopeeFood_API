@@ -36,7 +36,13 @@ module.exports = {
         });
     },
 
-    async getAllRunningOrder(req, res) {},
+    // get all running order 
+    async getAllRunningOrder(req, res) {
+        return
+    },
+    
+    // get all pending order 
+    async getAllPendingOrder(req, res) {},
     // get revenue specific time
     // San phan ban chay trong tuan nay
 };

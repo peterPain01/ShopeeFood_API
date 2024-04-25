@@ -4,13 +4,15 @@ const userSchema = new Schema(
     {
         fullname: String,
         avatar: String,
+
         state: { type: String, enum: ["active", "ban"], default: "active" },
-        verify: { type: Boolean, default: false },
+
         email: {
             type: String,
             unique: true,
             sparse: true,
         },
+
         phone: {
             type: String,
             unique: true,
@@ -22,6 +24,7 @@ const userSchema = new Schema(
             type: Array,
             default: [],
         },
+
         birth_date: { type: Date },
         gender: {
             type: String,
