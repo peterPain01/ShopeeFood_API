@@ -21,18 +21,5 @@ module.exports = {
         return true;
     },
 
-    uploadImageToLocal(directoryName = "", imageData) {
-        const buffer = Buffer.from(imageData, "base64");
-
-        const fileName = `image_${Date.now()}.jpg`;
-
-        fs.writeFile(fileName, buffer, (err) => {
-            if (err) {
-                console.error("Error saving image:", err);
-                return res.status(500).send("Error saving image");
-            }
-            console.log("Image saved successfully");
-            res.status(200).send("Image uploaded successfully");
-        });
-    },
+   
 };

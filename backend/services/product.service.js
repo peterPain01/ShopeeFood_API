@@ -61,7 +61,7 @@ module.exports = {
             .lean();
     },
 
-    async getProductById({ product_id, unSelect, select }) {
+    async getProductById({ productId, unSelect = [], select = [] }) {
         let unSelectFields = {};
         let selectedFields = {};
         if (unSelect) unSelectFields = unSelectData(unSelect);
@@ -71,9 +71,10 @@ module.exports = {
             ...selectedFields,
         });
         return await productModel
-            .findById(new Types.ObjectId(product_id))
+            .findById(new Types.ObjectId(productId))
             .select({ ...unSelectFields, ...selectedFields })
-            .lean();
+            .lean()
+            .exec();
     },
 
     async deleteProductById(filter) {
@@ -102,6 +103,7 @@ module.exports = {
     async getTrendingProduct(shopId) {
         return await productModel
             .find({ product_shop: new Types.ObjectId(shopId) })
+            .select({ product_shop: -1 })
             .sort({ product_sold: -1 });
     },
 };

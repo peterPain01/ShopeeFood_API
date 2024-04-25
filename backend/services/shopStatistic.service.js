@@ -1,5 +1,6 @@
 const orderModel = require("../model/order.model");
 const { BadRequest } = require("../modules/CustomError");
+const { unSelectData } = require("../utils");
 const productService = require("./product.service");
 
 module.exports = {
@@ -7,7 +8,7 @@ module.exports = {
     async getStatisticNumberOrder(shopId) {
         const currentDate = new Date();
         currentDate.setUTCHours(0, 0, 0, 0);
-        
+
         try {
             const filter = {
                 order_shop: shopId,
@@ -67,7 +68,7 @@ module.exports = {
 
     // get list san pham ban chay
     async getTrendingProduct(shopId) {
-        return (await productService.getTrendingProduct(shopId)) || null;
+        return (await productService.getTrendingProduct(shopId)) || [];
     },
 
     getRevenueByHour(successOrdersInDay) {
@@ -82,5 +83,23 @@ module.exports = {
         });
 
         return groupedByHour;
+    },
+
+    async getPendingOrder(shopId, unSelect) {
+        return await orderModel
+            .find({
+                order_shop: shopId,
+                order_state: "pending",
+            })
+            .select(unSelectData(unSelect));
+    },
+
+    async getShippingOrder(shopId, unSelect) {
+        return await orderModel
+            .find({
+                order_shop: shopId,
+                order_state: "shipping",
+            })
+            .select(unSelectData(unSelect));
     },
 };

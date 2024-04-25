@@ -10,6 +10,7 @@ const shopService = require("../services/shop.service");
 const productService = require("../services/product.service");
 const userModel = require("../model/user.model");
 const shopUtils = require("../utils/shop");
+const { uploadFileFromLocal } = require("../services/upload.service");
 
 const STATIC_FILE_PATH = `http://localhost:${process.env.PORT}/`;
 
@@ -17,6 +18,13 @@ module.exports = {
     async createShop(req, res) {
         const { userId } = req.user;
         const shop_data = req.body;
+
+        const { image_url } = await uploadFileFromLocal(req.file.path);
+        if (!image_url)
+            throw new BadRequest(
+                "Cant upload the file to cloud please try again"
+            );
+
         if (!shop_data || !shop_data.open_hour || !shop_data.close_hour)
             throw new BadRequest("Missing some information");
 
@@ -37,7 +45,7 @@ module.exports = {
             ...shop_data,
             _id: userId,
             owner: userId,
-            image: STATIC_FILE_PATH + req.file.path,
+            image: image_url,
         });
 
         if (!new_shop) throw new InternalServerError("Shop Failure Create");

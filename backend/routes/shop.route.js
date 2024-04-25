@@ -74,11 +74,21 @@ router.delete(
     "/discount/:discount_id",
     errorHandler(discountController.deleteDiscountByShop)
 );
-    
+
 // ===== STATISTIC =====
 router.get(
     "/statistic/overall",
     errorHandler(shopStatisticController.getStatisticOverall)
+);
+
+router.get(
+    "/statistic/order/shipping",
+    errorHandler(shopStatisticController.getAllShippingOrder)
+);
+
+router.get(
+    "/statistic/order/pending",
+    errorHandler(shopStatisticController.getAllPendingOrder)
 );
 
 module.exports = router;

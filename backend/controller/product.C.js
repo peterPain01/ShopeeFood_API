@@ -68,12 +68,12 @@ module.exports = {
 
     async getProductById(req, res, next) {
         try {
-            const { productId: product_id } = req.query;
-            if (!product_id) throw new BadRequest("Missing required arguments");
+            const { productId } = req.params;
+            if (!productId) throw new BadRequest("Missing required arguments");
 
             const found_products = await productService.getProductById({
-                product_id,
-                unSelect: ["__v"],
+                productId,
+                unSelect: ["__v", "product_shop"],
             });
 
             if (!found_products) throw new Api404Error("Product Not Found");

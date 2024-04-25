@@ -34,7 +34,6 @@ const productSchema = Joi.object({
 async function validateCreateProduct(req, res, next) {
     const data = req.body;
     const path_file_stored = req.file.path;
-    console.log(req.file);
     try {
         await productSchema.validateAsync(data);
         if (!isValidObjectId(data.product_category))
@@ -52,6 +51,7 @@ async function validateCreateShop(req, res, next) {
     const data = req.body;
     // remove it on Front end side
     const plainObject = JSON.parse(JSON.stringify(data));
+    if (!req.file) return next(new BadRequest("Missing image for shop"));
     const path_file_stored = req.file.path;
 
     try {

@@ -36,13 +36,20 @@ module.exports = {
         });
     },
 
-    // get all running order 
-    async getAllRunningOrder(req, res) {
-        return
+    async getAllShippingOrder(req, res) {
+        const { userId: shopId } = req.user;
+        const unSelect = ["__v"];
+        const orders = await shopStatisticService.getShippingOrder(shopId, unSelect);
+        res.status(200).json({ message: "Success", metadata: orders || [] });
     },
-    
-    // get all pending order 
-    async getAllPendingOrder(req, res) {},
+
+    async getAllPendingOrder(req, res) {
+        const { userId: shopId } = req.user;
+        const unSelect = ["__v"];
+        const orders = await shopStatisticService.getPendingOrder(shopId, unSelect);
+        res.status(200).json({ message: "Success", metadata: orders || [] });
+    },
+
     // get revenue specific time
     // San phan ban chay trong tuan nay
 };

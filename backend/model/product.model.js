@@ -18,13 +18,13 @@ const productSchema = new Schema({
     product_like: { type: Number, default: 0 },
 
     // is this effective way to store comment ?
-    product_comments: [
-        {
-            user: { type: Types.ObjectId, ref: "User" },
-            text: String,
-            createdAt: { type: Date, default: Date.now },
-        },
-    ],
+    // product_comments: [
+    //     {
+    //         user: { type: Types.ObjectId, ref: "User" },
+    //         text: String,
+    //         createdAt: { type: Date, default: Date.now },
+    //     },
+    // ],
 
     isDraft: { type: Boolean, default: true, index: true, select: false },
     isPublished: { type: Boolean, default: false, index: true, select: false },
