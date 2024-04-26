@@ -16,4 +16,6 @@ router.patch(
     errorHandler(UserController.uploadAvt)
 );
 
+router.post("/address",  errorHandler(UserController.addUserAddress));
+
 module.exports = router;

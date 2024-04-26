@@ -1,4 +1,5 @@
-const { Schema, Types,model } = require("mongoose");
+const { required } = require("joi");
+const { Schema, Types, model } = require("mongoose");
 
 const shipperSchema = new Schema(
     {
@@ -7,6 +8,7 @@ const shipperSchema = new Schema(
         balance: { type: Number, default: 0 },
         license_plate_number: { type: String, required: true },
         vehicle_image: { type: String, required: true },
+        shipper_user: { type: Types.ObjectId, required: true, ref: "User" },
     },
     {
         timestamps: true,

@@ -30,7 +30,6 @@ module.exports = {
 
         res.status(200).json({
             message: "Created User Success",
-            metadata: {},
         });
     },
 
@@ -44,12 +43,12 @@ module.exports = {
             throw new ConflictRequest("Phone was registered");
         }
 
-         // try {
+        // try {
         //     const verification = await otpService.sendOTPViaCall(phone);
         // } catch (err) {
         //     console.log(err);
         // }
-        
+
         const encrypted_pass = await bcrypt.hash(String(password), SALTROUND);
         const newUser = await User.create({
             phone,
@@ -61,9 +60,7 @@ module.exports = {
 
         res.status(200).json({
             message: "Created User Success",
-            metadata: {},
         });
-      
     },
 
     async login(req, res) {
@@ -83,12 +80,13 @@ module.exports = {
             throw new Error(err.message);
         }
     },
+    // delete 
 
     async logout(req, res) {
         const keyStore = req.keyStore;
-        console.log(keyStore);
-        if (!keyStore) throw new BadRequest("Missing some information");
-        await KeyTokenService.removeTokenById(keyStore.id);
-        res.status(200).json("User Successfully Logout");
+        if (!keyStore) throw new InternalServerError("Some error on Server");
+        await KeyTokenService.removeTokenById(keyStore._id);
+        
+        res.status(200).json({ message: "User Successfully Logout" });
     },
 };

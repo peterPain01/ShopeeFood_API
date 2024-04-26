@@ -12,7 +12,7 @@ module.exports = {
     // call 1 add product to cart function
     async addProductToCart(req, res) {
         const { userId } = req.user;
-        const { productId } = req.query;
+        const { productId, quantity = 1 } = req.query;
 
         const foundProduct = await productService.checKExistProduct(productId);
         if (!foundProduct) throw new Api404Error("Product Not Found");
@@ -25,7 +25,7 @@ module.exports = {
             productId: foundProduct._id,
             name: foundProduct.product_name,
             price: foundProduct.product_discounted_price,
-            quantity: 1,
+            quantity,
         };
 
         const shopId = foundProduct.product_shop;
@@ -37,12 +37,10 @@ module.exports = {
             );
             if (!newCart)
                 throw new InternalServerError("Error while creating cart");
-            return res
-                .status(200)
-                .json({
-                    message: "Product Successfully Added to Cart",
-                    metadata: newCart,
-                });
+            return res.status(200).json({
+                message: "Product Successfully Added to Cart",
+                metadata: newCart,
+            });
         } else {
             if (!foundCart?.cart_products?.length) {
                 foundCart.cart_products = [productToAdd];

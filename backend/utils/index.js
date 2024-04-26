@@ -58,6 +58,11 @@ const deleteFileByRelativePath = (filePath) => {
     });
 };
 
+function removeExtInFileName(filename) {
+    let split = filename.split(".");
+    let ext = split.at(-1);
+    return filename.replaceAll(`.${ext}`, "");
+}
 module.exports = {
     getInfoData,
     getSelectData,
@@ -65,4 +70,5 @@ module.exports = {
     removeNestedNullUndefined,
     NestedObjectParser,
     deleteFileByRelativePath,
+    removeExtInFileName
 };

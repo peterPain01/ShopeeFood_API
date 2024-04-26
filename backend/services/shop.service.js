@@ -90,4 +90,12 @@ module.exports = {
 
         return shop;
     },
+
+    async updateShop(shopId, bodyUpdate, filepath) {
+        if (filepath) bodyUpdate = { ...bodyUpdate, image: filepath };
+
+        return await shopModel.findByIdAndUpdate(shopId, {
+            $set: { ...bodyUpdate },
+        });
+    },
 };

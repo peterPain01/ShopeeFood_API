@@ -39,9 +39,13 @@ module.exports = {
                 product_thumb,
             };
         }
-        return await productModel.findOneAndUpdate(filter, bodyUpdate, {
-            new: true,
-        });
+        return await productModel.findOneAndUpdate(
+            filter,
+            { $set: { ...bodyUpdate } },
+            {
+                new: true,
+            }
+        );
     },
 
     async getAllProducts({
@@ -100,10 +104,10 @@ module.exports = {
         return await productModel.findByIdAndUpdate(productId, update);
     },
 
-    async getTrendingProduct(shopId) {
+    async getTrendingProduct(shopId, unSelect) {
         return await productModel
             .find({ product_shop: new Types.ObjectId(shopId) })
-            .select({ product_shop: -1 })
+            .select(unSelectData(unSelect))
             .sort({ product_sold: -1 });
     },
 };

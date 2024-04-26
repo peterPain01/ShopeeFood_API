@@ -19,6 +19,7 @@ const shopSchema = new Schema(
 
         phone: {
             type: String,
+            required: true,
         },
 
         /* 
@@ -52,6 +53,15 @@ const shopSchema = new Schema(
         open_hour: { type: String, required: true },
 
         close_hour: { type: String, required: true },
+        comment: [
+            {
+                star: { type: Number, required: true },
+                title: { type: String, required: true },
+                comment_user: { type: Types.ObjectId, required: true, ref: "User" },
+                content: { type: String, required: true },
+                date: { type: Date, required: true },
+            },
+        ],
     },
     {
         timestamps: true,

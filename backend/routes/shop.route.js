@@ -7,12 +7,14 @@ const { upload } = require("../config/multer");
 
 const errorHandler = require("../utils/errorHandler");
 const { verifyToken, verifyShop } = require("../utils/auth");
-
 const {
     validateCreateShop,
+    validateUpdateShop,
+} = require("../validation/shopValidation");
+const {
     validateCreateProduct,
     validateUpdateProduct,
-} = require("../validation/shopValidation");
+} = require("../validation/productValidation");
 
 router.get(
     "/:shopId/products/search/:keySearch",
@@ -38,6 +40,11 @@ router.get("/discount", errorHandler(discountController.getDiscountByShopId));
 
 // ===== SHOP =====
 router.use(verifyShop);
+router.post(
+    "/update",
+    [upload.single("image"), validateUpdateShop],
+    errorHandler(ShopController.updateShop)
+);
 
 // ===== PRODUCT =====
 router.get("/drafts", errorHandler(ShopController.getAllDraftsForShop));

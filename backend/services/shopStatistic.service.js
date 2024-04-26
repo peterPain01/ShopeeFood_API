@@ -44,7 +44,6 @@ module.exports = {
             );
             const totalRevenue = this.countRevenueByOrders(successOrders);
             // const reportRevenue = getRevenueByHour(successOrders);
-            console.log(orders);
 
             const trendingProducts = await this.getTrendingProduct(shopId);
             return {
@@ -68,7 +67,11 @@ module.exports = {
 
     // get list san pham ban chay
     async getTrendingProduct(shopId) {
-        return (await productService.getTrendingProduct(shopId)) || [];
+        return (
+            (await productService.getTrendingProduct(shopId, [
+                "product_shop",
+            ])) || []
+        );
     },
 
     getRevenueByHour(successOrdersInDay) {

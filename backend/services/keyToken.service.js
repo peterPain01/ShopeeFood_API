@@ -62,8 +62,7 @@ class KeyTokenService {
     }
 
     static async removeTokenById(id) {
-        const filter = { _id: new Types.ObjectId(id) };
-        return await keytokenModel.findOneAndDelete(filter);
+        return await keytokenModel.findByIdAndDelete(id);
     }
 
     static async getTokensById(id) {

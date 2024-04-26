@@ -6,17 +6,15 @@ const storage = (destinationFolder) =>
             cb(null, destinationFolder);
         },
         filename: function (req, file, cb) {
-            cb(null, file.originalname); // Keep the original filename
+            const part_filename = file.originalname.split(".");
+            const ext = part_filename.at(-1);
+            const random = Math.floor(Math.random() * 90 + 10);
+
+            cb(null, file.originalname.replaceAll(`.${ext}`, `${random}.${ext}`));
         },
     });
 
-// upload private file
 const upload = multer({ storage: storage("uploads") });
-
-// upload public file
-const uploadPrivateFile = multer({ storage: storage });
-
-// SHIPPER
 const uploadFileForShipper = multer({ storage: storage("uploads/shippers") });
 
-module.exports = { upload, uploadPrivateFile, uploadFileForShipper };
+module.exports = { upload, uploadFileForShipper };

@@ -15,21 +15,22 @@ module.exports = {
         try {
             const userId = req.headers["x-client-id"];
             if (!userId)
-                throw new BadRequest(
+                throw new AuthFailureError(
                     "Missing required arguments in header section"
                 );
 
             const accessToken = req.headers["x-authorization"];
-            if (!accessToken) throw new BadRequest("No token provided");
+            if (!accessToken) throw new AuthFailureError("No token provided");
 
             const keyStore = await KeyTokenService.findByUserId(userId);
-            if (!keyStore) throw new Api404Error("KeyStore not found");
+            if (!keyStore) throw new AuthFailureError("KeyStore not found");
 
             jwt.verify(accessToken, keyStore.publicKey, (err, decodedUser) => {
                 if (err)
-                    throw new AuthFailureError(
-                        "Access Token is invalid or expired"
-                    );
+                    throw new AuthFailureError({
+                        message: "Access Token is invalid or expired",
+                        metadata: null,
+                    });
                 else {
                     req.keyStore = keyStore;
                     req.user = decodedUser;
@@ -65,7 +66,7 @@ module.exports = {
         });
 
         if (!publicKeyStored)
-            throw new InternalServerError("publicKeyStored error");
+            throw new InternalServerError("Server cant store publicKeyStored");
 
         return res.status(201).json({
             message: "Success",
@@ -161,6 +162,20 @@ module.exports = {
         try {
             console.log(req.user);
             if (req.user.role === "user") return next();
+            next(
+                new AuthFailureError(
+                    `Authenticate Failure !!! Your Role is ${req.user.role}`
+                )
+            );
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    verifyShipper(req, res, next) {
+        try {
+            console.log(req.user);
+            if (req.user.role === "shipper") return next();
             next(
                 new AuthFailureError(
                     `Authenticate Failure !!! Your Role is ${req.user.role}`
