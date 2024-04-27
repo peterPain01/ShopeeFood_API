@@ -75,7 +75,7 @@ module.exports = {
             ...selectedFields,
         });
         return await productModel
-            .findById(new Types.ObjectId(productId))
+            .findById(productId)
             .select({ ...unSelectFields, ...selectedFields })
             .lean()
             .exec();

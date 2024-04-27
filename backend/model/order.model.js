@@ -1,6 +1,20 @@
 const { Schema, model } = require("mongoose");
 const moment = require("moment-timezone");
 
+const userOrderSchema = new Schema({
+    _id: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+    fullname: { type: String },
+    phone: { type: String, required: true },
+    address: { type: Object, required: true },
+});
+
+const shopOrderSchema = new Schema({
+    _id: { type: Schema.Types.ObjectId, required: true, ref: "Shop" },
+    name: { type: String, required: true },
+    image: { type: String, required: true },
+    address: { type: Object },
+});
+
 const orderSchema = new Schema(
     {
         order_state: {
@@ -9,31 +23,31 @@ const orderSchema = new Schema(
             default: "pending",
         },
         order_user: {
-            type: Schema.Types.ObjectId,
+            type: userOrderSchema,
             required: true,
-            ref: "User",
         },
-
-        // store shop id and shop address
         order_shop: {
-            type: Schema.Types.ObjectId,
+            type: shopOrderSchema,
             required: true,
-            ref: "User",
         },
         order_shipper: {
             type: Schema.Types.ObjectId,
-            ref: "User",
+            ref: "Shipper",
         },
 
         order_totalPrice: { type: Number, required: true },
         order_subPrice: { type: Number, required: true },
         order_listProducts: { type: Array, required: true },
-        order_discountUsed: { types: Array },
+        order_totalItems: { type: Number, required: true }, 
+        // order_discountUsed: { types: Array },
         order_note: String,
         order_paymentMethod: {
             type: String,
             enum: ["cash", "vnpay"],
             required: true,
+        },
+        order_finishAt: {
+            type: Date,
         },
     },
     { timestamps: true }

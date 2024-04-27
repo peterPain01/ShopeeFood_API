@@ -9,5 +9,4 @@ const addressSchema = Joi.object({
     }).required(),
 });
 
-
 module.exports = { addressSchema };

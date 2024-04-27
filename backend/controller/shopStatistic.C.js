@@ -38,20 +38,23 @@ module.exports = {
 
     async getAllShippingOrder(req, res) {
         const { userId: shopId } = req.user;
-        const unSelect = ["__v"];
+        const select = ["order_totalPrice", "order_state", "order_user"];
         const orders = await shopStatisticService.getShippingOrder(
             shopId,
-            unSelect
+            [],
+            select
         );
         res.status(200).json({ message: "Success", metadata: orders || [] });
     },
 
     async getAllPendingOrder(req, res) {
         const { userId: shopId } = req.user;
-        const unSelect = ["__v"];
+        const select = ["order_totalPrice", "order_state", "order_user"];
+
         const orders = await shopStatisticService.getPendingOrder(
             shopId,
-            unSelect
+            [],
+            select
         );
         res.status(200).json({ message: "Success", metadata: orders || [] });
     },

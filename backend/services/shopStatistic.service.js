@@ -1,6 +1,7 @@
 const orderModel = require("../model/order.model");
+const userModel = require("../model/user.model");
 const { BadRequest } = require("../modules/CustomError");
-const { unSelectData } = require("../utils");
+const { unSelectData, getSelectData } = require("../utils");
 const productService = require("./product.service");
 
 module.exports = {
@@ -88,21 +89,22 @@ module.exports = {
         return groupedByHour;
     },
 
-    async getPendingOrder(shopId, unSelect) {
-        return await orderModel
+    async getPendingOrder(shopId, unSelect = [], select = []) {
+        const orders = await orderModel
             .find({
                 order_shop: shopId,
                 order_state: "pending",
             })
-            .select(unSelectData(unSelect));
+            .select({ ...unSelectData(unSelect), ...getSelectData(select) });
+        return orders;
     },
 
-    async getShippingOrder(shopId, unSelect) {
+    async getShippingOrder(shopId, unSelect = {}, select = {}) {
         return await orderModel
             .find({
                 order_shop: shopId,
                 order_state: "shipping",
             })
-            .select(unSelectData(unSelect));
+            .select({ ...unSelectData(unSelect), ...getSelectData(select) });
     },
 };

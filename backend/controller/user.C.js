@@ -16,15 +16,30 @@ const {
 module.exports = {
     async getUserById(req, res) {
         const { userId } = req.user;
-        const user = await User.findById(userId).select(
-            unSelectData(["state", "role", "__v", "password"])
-        );
-        console.log(user);
+        
+        const user = await User.findById(userId).select({
+            ...unSelectData(["state", "role", "__v", "password"]),
+        });
         if (!user) throw new Api404Error("User Not Found");
 
         res.status(200).json({
             message: "Successful",
             metadata: user,
+        });
+    },
+    async getAddressUser(req, res) {
+        const { userId } = req.user;
+
+        const userAddr = await User.findById(userId).select({
+            addresses: 1,
+            _id: 0,
+        });
+
+        if (!userAddr) throw new Api404Error("User Not Found");
+
+        res.status(200).json({
+            message: "Successful",
+            metadata: userAddr.addresses,
         });
     },
 

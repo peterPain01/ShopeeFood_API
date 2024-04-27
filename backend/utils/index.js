@@ -58,6 +58,16 @@ const deleteFileByRelativePath = (filePath) => {
     });
 };
 
+function createDateFromString(date) {
+    // date ::::30/04/2024
+    const parts = date.split("/");
+    const day = parseInt(parts[0]);
+    const month = parseInt(parts[1]) - 1; // Months are 0-indexed
+    const year = parseInt(parts[2]);
+
+    return new Date(year, month, day);
+}
+
 function removeExtInFileName(filename) {
     let split = filename.split(".");
     let ext = split.at(-1);
@@ -70,5 +80,6 @@ module.exports = {
     removeNestedNullUndefined,
     NestedObjectParser,
     deleteFileByRelativePath,
-    removeExtInFileName
+    removeExtInFileName,
+    createDateFromString
 };

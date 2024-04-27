@@ -1,4 +1,8 @@
-const { Api404Error, InternalServerError } = require("../modules/CustomError");
+const {
+    Api404Error,
+    InternalServerError,
+    BadRequest,
+} = require("../modules/CustomError");
 const cartService = require("../services/cart.service");
 const orderService = require("../services/order.service");
 const paymentService = require("../services/payment.service");
@@ -33,7 +37,15 @@ module.exports = {
 
     async checkoutCash(req, res) {
         const { userId } = req.user;
+        const { type, latlng, street } = req.body;
+        if (!type || !latlng || !street)
+            throw new BadRequest(`Missing type | latlng | street in req.body`);
 
+        const address = {
+            type,
+            latlng,
+            street,
+        };
         const foundCart = await cartService.findCartByUserId(userId);
         if (!foundCart || !foundCart?.cart_products.length)
             throw new Api404Error("Cart Not Found Or Empty");
@@ -44,6 +56,8 @@ module.exports = {
         const orderInfo = await orderService.getOrderInfo(
             userId,
             shopId,
+            address,
+            foundCart.cart_count_product,
             paymentMethod,
             foundCart.cart_products,
             foundCart.cart_note
@@ -51,7 +65,7 @@ module.exports = {
 
         if (!orderInfo) throw new InternalServerError("Create Order Failure");
 
-        const createdOrder = await orderService.createOrder(userId, orderInfo);
+        const createdOrder = await orderService.createOrder(orderInfo);
 
         if (!createdOrder)
             throw new InternalServerError("Error when create order info");
@@ -62,7 +76,6 @@ module.exports = {
 
         res.status(201).json({
             message: "Order Successful Created",
-            metadata,
         });
     },
 
@@ -74,5 +87,30 @@ module.exports = {
     async getVnpUrl(req, res) {
         const VnpUrl = paymentService.getVnpUrl(req);
         res.status(200).send(VnpUrl);
+    },
+
+    async getOnGoingOrder(req, res) {
+        const { userId } = req.user;
+        const select = [
+            "_id",
+            "order_shop",
+            "order_totalPrice",
+            "order_totalItems",
+        ];
+        const orders = await orderService.getAllOnGoingOrder(userId, select);
+
+        res.status(200).json({ message: "Success", metadata: orders || {} });
+    },
+
+    async getSuccessOrder(req, res) {
+        const { userId } = req.user;
+        const select = [
+            "_id",
+            "order_shop",
+            "order_totalPrice",
+            "order_totalItems",
+        ];
+        const orders = await orderService.getSuccessOrder(userId, select);
+        res.status(200).json({ message: "Success", metadata: orders || {} });
     },
 };

@@ -30,13 +30,13 @@ module.exports = {
         return await cartModel.create({
             cart_products: [productToAdd],
             cart_user: userId,
-            cart_count_product: 1,
+            cart_count_product: productToAdd.quantity,
             cart_shop: shopId,
         });
     },
 
     async addProductToCart(userId, shopId, productToAdd) {
-        const { productId, quantity, price } = productToAdd;
+        const { productId, quantity } = productToAdd;
         const filter = {
             cart_user: new Types.ObjectId(userId),
             "cart_products.productId": productId,
@@ -47,9 +47,8 @@ module.exports = {
         if (foundProductInCart) {
             const update = {
                 $inc: {
-                    "cart_products.$.quantity": quantity,
-                    "cart_products.$.price": price,
-                    cart_count_product: quantity,
+                    "cart_products.$.quantity": +quantity,
+                    cart_count_product: +quantity,
                 },
             };
             return await cartModel.findOneAndUpdate(filter, update, {
@@ -60,7 +59,7 @@ module.exports = {
                 { cart_user: new Types.ObjectId(userId) },
                 {
                     $push: { cart_products: productToAdd },
-                    $inc: { cart_count_product: quantity },
+                    $inc: { cart_count_product: +quantity },
                 },
                 { new: true }
             );

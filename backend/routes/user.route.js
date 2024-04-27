@@ -9,6 +9,8 @@ const { upload } = require("../config/multer");
 router.use(verifyToken, verifyUser);
 
 router.get("/", errorHandler(UserController.getUserById));
+router.get("/addresses", errorHandler(UserController.getAddressUser));
+
 router.patch("/", validateUpdateUser, errorHandler(UserController.update));
 router.patch(
     "/avatar",
@@ -16,6 +18,6 @@ router.patch(
     errorHandler(UserController.uploadAvt)
 );
 
-router.post("/address",  errorHandler(UserController.addUserAddress));
+router.post("/address", errorHandler(UserController.addUserAddress));
 
 module.exports = router;

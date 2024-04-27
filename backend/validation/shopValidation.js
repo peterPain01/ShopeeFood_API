@@ -10,7 +10,8 @@ const shopSchema = Joi.object({
     description: Joi.string().required().trim().strict(),
     phone: Joi.string().required().trim().strict(),
     // addresses: Joi.array().items(addressSchema).required(),
-    category: Joi.array(),
+    address: Joi.object().required(),
+    category: Joi.array().required(),
     status: Joi.string(),
     open_hour: Joi.string().required(),
     close_hour: Joi.string().required(),
@@ -29,8 +30,15 @@ const updateShopSchema = Joi.object({
 
 async function validateCreateShop(req, res, next) {
     const data = req.body;
-    // remove it on Front end side
+    console.log("data::::", data);
     const plainObject = JSON.parse(JSON.stringify(data));
+    Object.keys(data).forEach((key) => {
+        if (!Object.keys(shopSchema.describe().keys).includes(key))
+            delete data[key];
+    });
+    plainObject.address = JSON.parse(plainObject.address);
+    req.body = JSON.parse(req.body.address);
+    
     if (!req.file) return next(new BadRequest("Missing image for shop"));
     const path_file_stored = req.file.path;
     try {
@@ -50,7 +58,7 @@ async function validateCreateShop(req, res, next) {
     } catch (error) {
         deleteFileByRelativePath(path_file_stored);
         return next(
-                new BadRequest(error?.details?.at(0).message || error.message)
+            new BadRequest(error?.details?.at(0).message || error.message)
         );
     }
 }

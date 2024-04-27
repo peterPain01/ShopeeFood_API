@@ -8,8 +8,8 @@ const cartService = require("../services/cart.service");
 const productService = require("../services/product.service");
 
 module.exports = {
-    // ============== access db [4 TIMES] in bad case
-    // call 1 add product to cart function
+    // 1. found cart
+    // 2. not found cart
     async addProductToCart(req, res) {
         const { userId } = req.user;
         const { productId, quantity = 1 } = req.query;
@@ -24,8 +24,9 @@ module.exports = {
         const productToAdd = {
             productId: foundProduct._id,
             name: foundProduct.product_name,
-            price: foundProduct.product_discounted_price,
-            quantity,
+            unit_price: foundProduct.product_discounted_price,
+            image: foundProduct.product_thumb,
+            quantity: +quantity,
         };
 
         const shopId = foundProduct.product_shop;
@@ -44,20 +45,24 @@ module.exports = {
         } else {
             if (!foundCart?.cart_products?.length) {
                 foundCart.cart_products = [productToAdd];
-                foundCart.cart_count_product = 1;
+                foundCart.cart_count_product = productToAdd.quantity;
                 foundCart.cart_shop = shopId;
                 await foundCart.save();
             } else {
-                console.log(foundProduct.product_shop, foundCart.cart_shop);
-
                 if (
                     !foundProduct.product_shop
                         .toString()
                         .includes(foundCart.cart_shop)
-                )
-                    throw new BadRequest(
-                        "Only 1 shop per cart, We wil update later"
-                    );
+                ) {
+                    // only 1 shop per cart
+                    foundCart.cart_products = [productToAdd];
+                    foundCart.cart_count_product = productToAdd.quantity;
+                    foundCart.cart_shop = shopId;
+                    await foundCart.save();
+                    // throw new BadRequest(
+                    //     "Only 1 shop per cart, We wil update later"
+                    // );
+                }
                 const result = await cartService.addProductToCart(
                     userId,
                     shopId,
@@ -71,7 +76,6 @@ module.exports = {
         }
         res.status(200).json({
             message: "Product Successfully Added to Cart",
-            metadata: [],
         });
     },
 
@@ -79,7 +83,9 @@ module.exports = {
         const { userId } = req.user;
         const cart = await cartService.findCartByUserId(userId);
 
-        if (!cart) throw new Api404Error("Cart Not Found");
+        if (!cart)
+            return res.status(404).json({ message: "Cart Not Found", metadata: null});
+        
         return res
             .status(200)
             .json({ message: "Successfully", metadata: cart });
@@ -143,7 +149,7 @@ module.exports = {
 
     async createNote(req, res) {
         const { userId } = req.user;
-        const { note } = req.body;
+        const { note } = req.query;
         if (!note) throw new BadRequest("Missing order note in body request");
 
         const update = {
@@ -156,7 +162,6 @@ module.exports = {
             update
         );
         if (!cart) throw Api404Error("Cart not found");
-
         res.status(200).json({ message: "Successfully" });
     },
 };

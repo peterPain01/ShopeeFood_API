@@ -17,7 +17,7 @@ module.exports = {
     // SHOP
     async createShop(req, res) {
         const { userId } = req.user;
-        const shop_data = req.body;
+        let shop_data = req.body;
 
         const foundShop = await shopService.findShopById(userId);
         if (foundShop)
@@ -28,10 +28,14 @@ module.exports = {
             removeExtInFileName(req.file.filename),
             process.env.CLOUDINARY_SHOP_IMAGE_PATH
         );
-        if (!image_url)
+        if (!image_url) {
             throw new BadRequest(
                 "Cant upload the file to cloud please try again"
             );
+        }
+
+        shop_data = { ...shop_data, addresses: [shop_data.address] };
+        delete shop_data["address"];
 
         const new_shop = await shopModel.create({
             ...shop_data,

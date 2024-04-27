@@ -11,7 +11,7 @@ const categoryRouter = require("./category.route");
 const orderRouter = require("./order.route");
 const shipperRouter = require("./shipper.router");
 const adminRouter = require("./admin.route");
-
+const commentRouter = require("./comment.route");
 router.use("/auth", authRouter);
 
 router.use("/order", orderRouter);
@@ -22,6 +22,7 @@ router.use("/product", productRouter);
 router.use("/discount", discountRouter);
 router.use("/user", userRouter);
 router.use("/cart", cartRouter);
+router.use("/comment", commentRouter);
 router.use(flashSaleRouter);
 router.use(categoryRouter);
 
