@@ -19,7 +19,6 @@ module.exports = {
 
         const user = await User.findById(userId).select({
             ...unSelectData(["state", "role", "__v", "password"]),
-            password: 1,
         });
         if (!user) throw new Api404Error("User Not Found");
 
