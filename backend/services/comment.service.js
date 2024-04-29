@@ -28,7 +28,7 @@ class Comment {
         this.comment_shipperId = commentData.shipperId;
         this.comment_orderId = commentData.orderId;
         this.comment_productId = commentData.productId;
-
+        this.comment_userAvatar = commentData.userAvatar;
         this.comment_content_text = commentData.content_text;
         this.comment_content_image = commentData.content_image;
         this.comment_star = commentData.star;
@@ -107,11 +107,11 @@ module.exports = {
         return await commentModel.create(bodyCreate);
     },
 
-    async getAllCommentOfShipper(shipperId) {
+    async getAllCommentOfShipper(shipperId, unSelect = []) {
         const filter = {
             comment_shipperId: shipperId,
         };
-        return await commentModel.find(filter);
+        return await commentModel.find(filter).select(unSelectData(unSelect));
     },
 
     async getCommentByProductId({ productId, limit, page }) {
@@ -122,8 +122,14 @@ module.exports = {
             .skip((page - 1) * limit)
             .limit(limit);
     },
+
+    async getAllCommentOfShop(shopId) {
+        const filter = {
+            comment_shopId: shopId,
+        };
+        return await commentModel.find(filter);
+    },
 };
 
 // create function to compare object id get from client with get from database
-
 // restrict the comment

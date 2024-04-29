@@ -34,7 +34,8 @@ module.exports = {
             await userToShop.validateAsync(data);
             next();
         } catch (error) {
-            deleteFileByRelativePath(req.file.path);
+            if(req.file)
+                deleteFileByRelativePath(req.file.path);
             return next(
                 new BadRequest(error?.details?.at(0)?.message || error.message)
             );

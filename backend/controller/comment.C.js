@@ -3,6 +3,7 @@ const commentService = require("../services/comment.service");
 const productService = require("../services/product.service");
 const { uploadFileFromLocalWithMulter } = require("../services/upload.service");
 const { deleteFileByRelativePath } = require("../utils");
+const userModel = require("../model/user.model");
 const config = require("../config/common");
 
 module.exports = {
@@ -14,6 +15,8 @@ module.exports = {
         const foundProduct = await productService.getProductById({
             productId: commentData.productId,
         });
+
+        const foundUser = await userModel.findById(userId);
         if (!foundProduct) throw new BadRequest("Product Not Found");
 
         if (req.file) {
@@ -33,6 +36,7 @@ module.exports = {
             ...commentData,
             type: config.USER_COMMENT_SHOP,
             userId,
+            userAvatar: foundUser.avatar,
             shopId: foundProduct.product_shop,
         };
         const createdComment = await commentService.createCommentForUser(
@@ -138,11 +142,26 @@ module.exports = {
         res.status(200).json({ message: "Comment Successfully Deleted" });
     },
 
+    async getAllCommentOfShop(req, res) {
+        const { shopId } = req.query;
+        const comments = await commentService.getAllCommentOfShop(shopId);
+        res.status(200).json({
+            message: "Successful",
+            metadata: comments || {},
+        });
+    },
     // SHIPPER
     // shipper get all comment
     async getAllCommentOfShipper(req, res) {
         const { userId: shipperId } = req.user;
-        const comments = await commentService.getAllCommentOfShipper(shipperId);
+        const unselect = [
+            "__v",
+            "comment_content_image",
+            "comment_type",
+            "comment_childId",
+            "comment_orderId",
+        ];
+        const comments = await commentService.getAllCommentOfShipper(shipperId, unselect);
         res.status(200).json({
             message: "Successful",
             metadata: comments || {},

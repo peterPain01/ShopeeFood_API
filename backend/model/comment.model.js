@@ -1,10 +1,15 @@
 const { model, Schema, Types } = require("mongoose");
 const config = require("../config/common");
+const { required } = require("joi");
 
 const commentSchema = new Schema(
     {
         comment_userId: { type: Types.ObjectId, required: true, ref: "User" },
-
+        comment_userAvatar: {
+            type: String,
+            default:
+                "https://res.cloudinary.com/shoppefood/image/upload/v1714384176/avatar/etgihepxtpq43tzaxhid.jpg",
+        },
         comment_productId: {
             type: Types.ObjectId,
             ref: "Product",
