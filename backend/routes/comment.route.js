@@ -2,16 +2,70 @@ const express = require("express");
 const router = express.Router();
 const errorHandler = require("../utils/errorHandler");
 const commentController = require("../controller/comment.C");
-const { verifyToken, verifyUser } = require("../utils/auth");
-const { validateCreateComment } = require("../validation/commentValidation");
+const {
+    verifyToken,
+    verifyUser,
+    verifyShipper,
+    verifyShop,
+} = require("../utils/auth");
+const {
+    validateCreateCommentUserToShop,
+    validateCreateCommentUserToShipper,
+} = require("../validation/commentValidation");
+const { uploadComment, convert_formData } = require("../config/multer");
 
-router.use([verifyToken, verifyUser]);
+// get all comment of product id
+router.get("/all/", commentController.getAllCommentOfProduct);
+
+router.use(verifyToken);
+
+// user comment product of shop
 router.post(
-    "",
-    validateCreateComment,
+    "/user/shop",
+    [verifyUser, uploadComment.single("content_image")],
+    validateCreateCommentUserToShop,
     errorHandler(commentController.createCommentForUser)
 );
-router.get("", errorHandler(commentController.getAllCommentOfUser));
 
-router.delete("", errorHandler(commentController.deleteComment));
+// user comment shipper
+router.post(
+    "/user/shipper",
+    [verifyUser, convert_formData.none()],
+    validateCreateCommentUserToShipper,
+    errorHandler(commentController.createCommentUserToShipper)
+);
+
+router.get(
+    "/user",
+    verifyUser,
+    errorHandler(commentController.getAllCommentOfUser)
+);
+
+router.delete(
+    "/user",
+    verifyUser,
+    errorHandler(commentController.deleteComment)
+);
+
+// ========== SHOP ==========
+router.post(
+    "/shop",
+    verifyShop,
+    errorHandler(commentController.createCommentForShop)
+);
+// shop delete comment
+router.delete(
+    "/shop",
+    verifyShop,
+    errorHandler(commentController.deleteCommentByShop)
+);
+
+// ========== SHIPPER ==========
+// get all comment of shipper
+router.get(
+    "/shipper",
+    verifyShipper,
+    errorHandler(commentController.getAllCommentOfShipper)
+);
+
 module.exports = router;

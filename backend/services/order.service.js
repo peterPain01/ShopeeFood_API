@@ -15,7 +15,6 @@ module.exports = {
             const foundProduct = await productModel
                 .findById(product.productId)
                 .select(getSelectData(select));
-            console.log(foundProduct);
             subPrice +=
                 foundProduct.product_discounted_price * product.quantity;
         }

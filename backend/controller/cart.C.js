@@ -54,14 +54,11 @@ module.exports = {
                         .toString()
                         .includes(foundCart.cart_shop)
                 ) {
-                    // only 1 shop per cart
+                    // Only 1 shop per cart
                     foundCart.cart_products = [productToAdd];
                     foundCart.cart_count_product = productToAdd.quantity;
                     foundCart.cart_shop = shopId;
                     await foundCart.save();
-                    // throw new BadRequest(
-                    //     "Only 1 shop per cart, We wil update later"
-                    // );
                 }
                 const result = await cartService.addProductToCart(
                     userId,
@@ -82,10 +79,14 @@ module.exports = {
     async getCart(req, res) {
         const { userId } = req.user;
         const cart = await cartService.findCartByUserId(userId);
-
+        // voi moi product trong cart
+        // check xem gia da doi hay chua
+        // neu doi roi thi cap nhat gia moi cho gio hang
         if (!cart)
-            return res.status(404).json({ message: "Cart Not Found", metadata: null});
-        
+            return res
+                .status(404)
+                .json({ message: "Cart Not Found", metadata: null });
+
         return res
             .status(200)
             .json({ message: "Successfully", metadata: cart });

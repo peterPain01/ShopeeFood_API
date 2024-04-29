@@ -80,7 +80,6 @@ module.exports = {
             throw new Error(err.message);
         }
     },
-    // delete 
 
     async logout(req, res) {
         const keyStore = req.keyStore;

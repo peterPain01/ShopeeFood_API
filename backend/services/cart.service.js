@@ -12,9 +12,11 @@ module.exports = {
     },
 
     async findCartByUserId(userId) {
-        return await cartModel.findOne({
-            cart_user: new Types.ObjectId(userId),
-        });
+        return await cartModel
+            .findOne({
+                cart_user: new Types.ObjectId(userId),
+            })
+            .lean();
     },
 
     async findCartByUserIdAndUpdate(userId, update) {

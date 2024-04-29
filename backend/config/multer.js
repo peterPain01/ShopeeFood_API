@@ -10,11 +10,15 @@ const storage = (destinationFolder) =>
             const ext = part_filename.at(-1);
             const random = Math.floor(Math.random() * 90 + 10);
 
-            cb(null, file.originalname.replaceAll(`.${ext}`, `${random}.${ext}`));
+            cb(
+                null,
+                file.originalname.replaceAll(`.${ext}`, `${random}.${ext}`)
+            );
         },
     });
 
 const upload = multer({ storage: storage("uploads") });
 const uploadFileForShipper = multer({ storage: storage("uploads/shippers") });
-
-module.exports = { upload, uploadFileForShipper };
+const uploadComment = multer({ storage: storage("uploads/comments") });
+const convert_formData = multer();
+module.exports = { upload, uploadFileForShipper, uploadComment,convert_formData };

@@ -15,10 +15,13 @@ module.exports = {
         };
     },
 
-    async uploadFileFromLocalWithMulter(file) {
+    async uploadFileFromLocalWithMulter(
+        file,
+        folder = process.env.CLOUDINARY_SHIPPER_AVATAR_PATH
+    ) {
         try {
             const result = await cloudinary.uploader.upload(file.path, {
-                folder: process.env.CLOUDINARY_SHIPPER_AVATAR_PATH,
+                folder,
                 public_id: removeExtInFileName(file.filename),
             });
 
