@@ -92,7 +92,7 @@ module.exports = {
     async getPendingOrder(shopId, unSelect = [], select = []) {
         const orders = await orderModel
             .find({
-                order_shop: shopId,
+                "order_shop._id": shopId,
                 order_state: "pending",
             })
             .select({ ...unSelectData(unSelect), ...getSelectData(select) });
@@ -102,7 +102,7 @@ module.exports = {
     async getShippingOrder(shopId, unSelect = {}, select = {}) {
         return await orderModel
             .find({
-                order_shop: shopId,
+                "order_shop._id": shopId,
                 order_state: "shipping",
             })
             .select({ ...unSelectData(unSelect), ...getSelectData(select) });

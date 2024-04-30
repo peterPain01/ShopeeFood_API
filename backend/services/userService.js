@@ -5,10 +5,10 @@ const { getSelectData } = require("../utils");
 module.exports = {
     async handleUserShopLike(shopId, userId) {
         const updateUser = {
-            $push: { shop_liked: shopId },
+            $addToSet: { shop_liked: shopId },
         };
         const updateShop = {
-            $push : { user_liked: userId },
+            $addToSet : { user_liked: userId },
         };
 
         const updatedUser = await userModel.findByIdAndUpdate(userId, updateUser, { new: true });

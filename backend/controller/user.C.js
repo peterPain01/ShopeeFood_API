@@ -100,8 +100,14 @@ module.exports = {
     },
 
     async getAllShopUserLiked(req, res) {
-        const { userId } = req.user;
+        const userId  = "662c67a897eec536b67740de";
+        const { sortBy = "latest" } = req.query;
+
         const shops = await userService.getAllShopUserLiked(userId);
+        // cause push in mongo ==== push back
+        if (sortBy.toLocaleLowerCase() === "latest".toLocaleLowerCase()) {
+            shops?.reverse();
+        }
         res.status(200).json({ message: "Successful", metadata: shops || [] });
     },
 };

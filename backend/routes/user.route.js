@@ -6,6 +6,12 @@ const { verifyToken, verifyUser } = require("../utils/auth");
 const { validateUpdateUser } = require("../validation/userValidation");
 const { upload } = require("../config/multer");
 
+
+// === move it BELOW GUARD
+router.post("/like/shop", errorHandler(UserController.userShopLike));
+router.get("/liked/shop", errorHandler(UserController.getAllShopUserLiked));
+
+
 router.use(verifyToken, verifyUser);
 
 router.get("/", errorHandler(UserController.getUserById));
@@ -18,8 +24,6 @@ router.patch(
     errorHandler(UserController.uploadAvt)
 );
 
-router.post("/like/shop", errorHandler(UserController.userShopLike));
-router.get("/liked/shop", errorHandler(UserController.getAllShopUserLiked));
 
 router.post("/address", errorHandler(UserController.addUserAddress));
 
