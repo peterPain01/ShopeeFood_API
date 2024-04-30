@@ -123,11 +123,11 @@ module.exports = {
             .limit(limit);
     },
 
-    async getAllCommentOfShop(shopId) {
+    async getAllCommentOfShop(shopId, unSelect) {
         const filter = {
             comment_shopId: shopId,
         };
-        return await commentModel.find(filter);
+        return await commentModel.find(filter).select(unSelectData(unSelect));
     },
 };
 

@@ -86,10 +86,13 @@ module.exports = {
     },
 
     async searchProduct(keySearch) {
-        const regexSearch = new RegExp(keySearch);
+        const regexSearch = new RegExp("^" + keySearch);
         return await productModel
             .find(
-                { isDraft: false, $text: { $search: regexSearch } },
+                {
+                    isDraft: false,
+                    $text: { $search: regexSearch, $caseSensitive: false },
+                },
                 { score: { $meta: "textScore" } }
             )
             .sort({ score: { $meta: "textScore" } })
@@ -109,5 +112,39 @@ module.exports = {
             .find({ product_shop: new Types.ObjectId(shopId) })
             .select(unSelectData(unSelect))
             .sort({ product_sold: -1 });
+    },
+
+    async getRelatedKey(keySearch) {
+        const select = ["product_name", "product_description"];
+
+        const listOfProducts = await productModel
+            .find({
+                isDraft: false,
+                product_description: { $regex: keySearch, $options: "i" },
+                product_name: { $regex: keySearch, $options: "i" },
+            })
+            .lean()
+            .select(getSelectData(select));
+
+        // filter list of products
+
+        let relatedString = new Set();
+        listOfProducts.forEach((product) => {
+            const key_name = product.product_name.split(" ");
+            const key_desc = product.product_description.split(" ");
+
+            for (key of key_name) {
+                console.log("key::", key.toLowerCase());
+                if (key.toLowerCase().includes(keySearch.toLowerCase()))
+                    relatedString.add(key);
+            }
+            for (key of key_desc) {
+                if (key.toLowerCase().includes(keySearch.toLowerCase()))
+                    relatedString.add(key);
+            }
+        });
+
+        console.log("relatedString:::", relatedString);
+        return relatedString;
     },
 };

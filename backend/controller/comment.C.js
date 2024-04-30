@@ -144,7 +144,19 @@ module.exports = {
 
     async getAllCommentOfShop(req, res) {
         const { shopId } = req.query;
-        const comments = await commentService.getAllCommentOfShop(shopId);
+        const unSelect = [
+            "__v",
+            "isDelete",
+            "comment_type",
+            "createdAt",
+            "updatedAt",
+            "comment_productId",
+            "comment_orderId"
+        ];
+        const comments = await commentService.getAllCommentOfShop(
+            shopId,
+            unSelect
+        );
         res.status(200).json({
             message: "Successful",
             metadata: comments || {},
@@ -161,7 +173,10 @@ module.exports = {
             "comment_childId",
             "comment_orderId",
         ];
-        const comments = await commentService.getAllCommentOfShipper(shipperId, unselect);
+        const comments = await commentService.getAllCommentOfShipper(
+            shipperId,
+            unselect
+        );
         res.status(200).json({
             message: "Successful",
             metadata: comments || {},
