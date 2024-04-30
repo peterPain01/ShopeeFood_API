@@ -20,12 +20,11 @@ router.get(
     "/:shopId/products/search/:keySearch",
     errorHandler(ShopController.searchProductInShop)
 );
-// checked
 router.get("/category", errorHandler(ShopController.getShopByCategory));
-// checked
 router.get("/top-rated", errorHandler(ShopController.getTopRatedShops));
-// checked
 router.get("/detail", errorHandler(ShopController.getShopInfo));
+router.get("/related", errorHandler(ShopController.getShopByKeySearch));
+router.get("/suggest/", errorHandler(ShopController.getRelatedKey));
 
 // ===== User Registered =====
 router.use(verifyToken);

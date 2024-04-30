@@ -136,7 +136,7 @@ module.exports = {
             for (key of key_name) {
                 console.log("key::", key.toLowerCase());
                 if (key.toLowerCase().includes(keySearch.toLowerCase()))
-                    relatedString.add(key);
+                    relatedString.add(key.replace(",", ""));
             }
             for (key of key_desc) {
                 if (key.toLowerCase().includes(keySearch.toLowerCase()))

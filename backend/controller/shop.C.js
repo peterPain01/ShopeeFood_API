@@ -110,6 +110,32 @@ module.exports = {
         });
     },
 
+    async getShopByKeySearch(req, res) {
+        const { keySearch } = req.query;
+        const select = [
+            "name",
+            "description",
+            "image",
+            "avg_rating",
+            "open_hour",
+            "close_hour",
+        ];
+        if (!keySearch) throw new BadRequest("Missing required arguments");
+        const shops = await shopService.getShopByKeySearch(keySearch, select);
+        console.log(shops);
+        res.status(200).json({ message: "Successful", metadata: shops });
+    },
+
+    async getRelatedKey(req, res) {
+        const { keySearch } = req.query;
+        if (!keySearch) throw new BadRequest("Missing required arguments");
+        const shops = await shopService.getRelatedKey(keySearch);
+        console.log(shops);
+        res.status(200).json({
+            message: "Successful",
+            metadata: Array.from(shops),
+        });
+    },
     async getTopRatedShops(req, res) {
         const { limit = 50, skip = 0 } = req.query;
         const select = ["name", "image", "category", "address", "avg_rating"];

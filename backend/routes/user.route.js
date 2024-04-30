@@ -18,6 +18,9 @@ router.patch(
     errorHandler(UserController.uploadAvt)
 );
 
+router.post("/like/shop", errorHandler(UserController.userShopLike));
+router.get("/liked/shop", errorHandler(UserController.getAllShopUserLiked));
+
 router.post("/address", errorHandler(UserController.addUserAddress));
 
 module.exports = router;

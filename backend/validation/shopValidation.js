@@ -26,7 +26,7 @@ const updateShopSchema = Joi.object({
     status: Joi.string(),
     open_hour: Joi.string(),
     close_hour: Joi.string(),
-});
+}).min(1);
 
 async function validateCreateShop(req, res, next) {
     const data = req.body;
@@ -38,7 +38,7 @@ async function validateCreateShop(req, res, next) {
     });
     plainObject.address = JSON.parse(plainObject.address);
     req.body = JSON.parse(req.body.address);
-    
+
     if (!req.file) return next(new BadRequest("Missing image for shop"));
     const path_file_stored = req.file.path;
     try {

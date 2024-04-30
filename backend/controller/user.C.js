@@ -12,6 +12,7 @@ const {
     removeExtInFileName,
     deleteFileByRelativePath,
 } = require("../utils/index.js");
+const userService = require("../services/userService.js");
 
 module.exports = {
     async getUserById(req, res) {
@@ -27,6 +28,7 @@ module.exports = {
             metadata: user,
         });
     },
+
     async getAddressUser(req, res) {
         const { userId } = req.user;
 
@@ -85,5 +87,21 @@ module.exports = {
         );
         console.log(updateUser);
         res.status(200).json({ message: "Success Upload Avt" });
+    },
+
+    async userShopLike(req, res) {
+        const { shopId } = req.query;
+        const { userId } = req.user;
+        if (!shopId) throw new BadRequest("Missing required arguments");
+
+        const { updatedUser, updatedShop } =
+            await userService.handleUserShopLike(shopId, userId);
+        res.status(200).json({ message: "Successful", metadata: {} });
+    },
+
+    async getAllShopUserLiked(req, res) {
+        const { userId } = req.user;
+        const shops = await userService.getAllShopUserLiked(userId);
+        res.status(200).json({ message: "Successful", metadata: shops || [] });
     },
 };

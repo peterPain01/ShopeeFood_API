@@ -53,10 +53,12 @@ const shopSchema = new Schema(
         open_hour: { type: String, required: true },
 
         close_hour: { type: String, required: true },
-       
+        user_liked: [{ type: Types.ObjectId, ref: "User" }],
     },
     {
+        
         timestamps: true,
+        
     }
 );
 

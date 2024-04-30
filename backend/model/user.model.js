@@ -36,6 +36,8 @@ const userSchema = new Schema(
             default: "user",
         },
         bio: String,
+        // store Array of shopId
+        shop_liked: [{ type: Types.ObjectId, ref: "Shop" }],
     },
     { timestamps: true }
 );

@@ -4,6 +4,7 @@ const productController = require("../controller/product.C");
 const errorHandler = require("../utils/errorHandler");
 
 router.get("/search/", errorHandler(productController.searchProduct));
+// deprecated
 router.get("/suggest/", errorHandler(productController.getRelatedKey));
 
 router.get("/all", errorHandler(productController.getAllProducts));

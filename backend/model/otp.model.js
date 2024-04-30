@@ -1,4 +1,4 @@
-// Deprecated: migrate to Twilio
+// Deprecated: migrating to Twilio
 // const { Schema, model } = require("mongoose");
 
 // const otpSchema = new Schema({

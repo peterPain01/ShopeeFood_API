@@ -101,10 +101,11 @@ module.exports = {
     // keySearch: a
     // return : ["an vat", "an com"]
     async getRelatedKey(req, res) {
+        res.status(200).json({ message: "Deprecated" });
         const { keySearch } = req.query;
         if (!keySearch) throw new BadRequest("Missing required arguments");
         const relatedString = await productService.getRelatedKey(keySearch);
-        console.log(Array.from(relatedString))
+        console.log(Array.from(relatedString));
         return res.status(200).json({
             message: "Successful get related String ",
             metadata: Array.from(relatedString),

@@ -3,7 +3,7 @@ const productModel = require("../model/product.model");
 const { unPublishProductByShop } = require("../controller/shop.C");
 const shopModel = require("../model/shop.model");
 const { Types } = require("mongoose");
-const { unSelectData } = require("../utils");
+const { unSelectData, getSelectData } = require("../utils");
 
 module.exports = {
     async findAllDraftsForShop({ query, limit, skip }) {
@@ -97,5 +97,57 @@ module.exports = {
         return await shopModel.findByIdAndUpdate(shopId, {
             $set: { ...bodyUpdate },
         });
+    },
+
+    async getShopByKeySearch(keySearch, select) {
+        return await shopModel
+            .find({
+                $or: [
+                    {
+                        name: { $regex: keySearch, $options: "i" },
+                    },
+                    {
+                        description: { $regex: keySearch, $options: "i" },
+                    },
+                ],
+            })
+            .select(getSelectData(select));
+    },
+
+    async getRelatedKey(keySearch) {
+        const select = ["name", "description"];
+
+        const shops = await shopModel
+            .find({
+                $or: [
+                    {
+                        name: { $regex: keySearch, $options: "i" },
+                    },
+                    {
+                        description: { $regex: keySearch, $options: "i" },
+                    },
+                ],
+            })
+            .lean()
+            .select(getSelectData(select));
+
+        // filter list of shops
+        let relatedString = new Set();
+        shops.forEach((shop) => {
+            const key_name = shop.name.split(" ");
+            const key_desc = shop.description.split(" ");
+
+            for (key of key_name) {
+                console.log("key::", key.toLowerCase());
+                if (key.toLowerCase().includes(keySearch.toLowerCase()))
+                    relatedString.add(key.replace(",", ""));
+            }
+            for (key of key_desc) {
+                if (key.toLowerCase().includes(keySearch.toLowerCase()))
+                    relatedString.add(key);
+            }
+        });
+
+        return relatedString;
     },
 };
