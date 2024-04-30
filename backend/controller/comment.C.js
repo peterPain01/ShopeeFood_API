@@ -1,4 +1,8 @@
-const { InternalServerError, BadRequest } = require("../modules/CustomError");
+const {
+    InternalServerError,
+    BadRequest,
+    AuthFailureError,
+} = require("../modules/CustomError");
 const commentService = require("../services/comment.service");
 const productService = require("../services/product.service");
 const { uploadFileFromLocalWithMulter } = require("../services/upload.service");
@@ -143,7 +147,13 @@ module.exports = {
     },
 
     async getAllCommentOfShop(req, res) {
-        const { shopId } = req.query;
+        let { shopId } = req.query;
+        if (!shopId) {
+            if (req.user.role !== "shop")
+                throw new AuthFailureError("Only shop can call this route");
+            else shopId = req.user.userId;
+        }
+
         const unSelect = [
             "__v",
             "isDelete",
@@ -151,7 +161,7 @@ module.exports = {
             "createdAt",
             "updatedAt",
             "comment_productId",
-            "comment_orderId"
+            "comment_orderId",
         ];
         const comments = await commentService.getAllCommentOfShop(
             shopId,
@@ -162,6 +172,7 @@ module.exports = {
             metadata: comments || {},
         });
     },
+
     // SHIPPER
     // shipper get all comment
     async getAllCommentOfShipper(req, res) {

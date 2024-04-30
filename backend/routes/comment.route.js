@@ -17,10 +17,10 @@ const { uploadComment, convert_formData } = require("../config/multer");
 // get all comments by product id
 router.get("/all/", errorHandler(commentController.getAllCommentOfProduct));
 
-// get all comments of shop
-router.get("/all/shop", errorHandler(commentController.getAllCommentOfShop));
-
 router.use(verifyToken);
+
+// get all comments of shop 
+router.get("/all/shop", errorHandler(commentController.getAllCommentOfShop));
 
 // user comment product of shop
 router.post(
@@ -63,6 +63,7 @@ router.delete(
     verifyShop,
     errorHandler(commentController.deleteCommentByShop)
 );
+
 
 // ========== SHIPPER ==========
 // get all comment of shipper
