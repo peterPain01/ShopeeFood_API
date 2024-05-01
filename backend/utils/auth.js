@@ -27,10 +27,9 @@ module.exports = {
 
             jwt.verify(accessToken, keyStore.publicKey, (err, decodedUser) => {
                 if (err)
-                    throw new AuthFailureError({
-                        message: "Access Token is invalid or expired",
-                        metadata: null,
-                    });
+                    throw new AuthFailureError(
+                        "Access Token is invalid or expired"
+                    );
                 else {
                     req.keyStore = keyStore;
                     req.user = decodedUser;

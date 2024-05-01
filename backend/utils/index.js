@@ -40,6 +40,7 @@ const NestedObjectParser = (obj) => {
 };
 
 const deleteFileByRelativePath = (filePath) => {
+    if(!filePath) return 
     fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
             console.error("File does not exist or cannot be accessed");
@@ -73,6 +74,12 @@ function removeExtInFileName(filename) {
     let ext = split.at(-1);
     return filename.replaceAll(`.${ext}`, "");
 }
+
+function deleteRedundancyKey(raw, standard) {
+    Object.keys(raw).forEach((key) => {
+        if (!Object.keys(standard).includes(key)) delete raw[key];
+    });
+}
 module.exports = {
     getInfoData,
     getSelectData,
@@ -81,5 +88,6 @@ module.exports = {
     NestedObjectParser,
     deleteFileByRelativePath,
     removeExtInFileName,
-    createDateFromString
+    createDateFromString,
+    deleteRedundancyKey,
 };

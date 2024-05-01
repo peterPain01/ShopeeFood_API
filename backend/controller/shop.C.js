@@ -23,12 +23,21 @@ module.exports = {
         if (foundShop)
             throw new ConflictRequest("UserId was used to register shop");
 
+        const { image_url: avatar_url } = await uploadFileFromLocal(
+            req.files["avatar"][0].path,
+            removeExtInFileName(req.files["avatar"][0].filename),
+            process.env.CLOUDINARY_SHOP_PRODUCT_AVATAR
+        );
+
         const { image_url } = await uploadFileFromLocal(
-            req.file.path,
-            removeExtInFileName(req.file.filename),
+            req.files["image"][0].path,
+            removeExtInFileName(req.files["image"][0].filename),
             process.env.CLOUDINARY_SHOP_IMAGE_PATH
         );
-        if (!image_url) {
+
+        if (!avatar_url || !image_url) {
+            deleteFileByRelativePath(req.files["avatar"][0].path);
+            deleteFileByRelativePath(req.files["image"][0].path);
             throw new BadRequest(
                 "Cant upload the file to cloud please try again"
             );
@@ -42,6 +51,7 @@ module.exports = {
             _id: userId,
             owner: userId,
             image: image_url,
+            avatar: avatar_url,
         });
 
         if (!new_shop) throw new InternalServerError("Shop Failure Create");
@@ -89,6 +99,7 @@ module.exports = {
             metadata: "",
         });
     },
+
     async getShopByCategory(req, res) {
         const { limit = 10, skip = 0, category } = req.query;
         if (!category) throw new BadRequest("Missing required arguments");
@@ -119,6 +130,7 @@ module.exports = {
             "avg_rating",
             "open_hour",
             "close_hour",
+            "avatar",
         ];
         if (!keySearch) throw new BadRequest("Missing required arguments");
         const shops = await shopService.getShopByKeySearch(keySearch, select);
@@ -136,6 +148,7 @@ module.exports = {
             metadata: Array.from(shops),
         });
     },
+
     async getTopRatedShops(req, res) {
         const { limit = 50, skip = 0 } = req.query;
         const select = ["name", "image", "category", "address", "avg_rating"];
@@ -174,6 +187,9 @@ module.exports = {
 
     async getShopInfo(req, res) {
         const { shopId } = req.query;
+        let userId = "";
+        if (req.user) userId = req.user.userId;
+
         if (!shopId) throw new BadRequest("Missing required argument");
 
         if (!Types.ObjectId.isValid(shopId))
@@ -187,7 +203,16 @@ module.exports = {
         );
         if (!shopDetailInfo) throw new Api404Error("Shop Not Found");
 
-        res.status(200).json({ message: "Success", metadata: shopDetailInfo });
+        let isUserLiked = false;
+        if (userId) {
+            isUserLiked = shopDetailInfo.user_liked.includes(userId);
+        }
+        console.log(shopDetailInfo.user_liked);
+        console.log({ ...shopDetailInfo, isUserLiked });
+        res.status(200).json({
+            message: "Success",
+            metadata: { ...shopDetailInfo, isUserLiked },
+        });
     },
 
     // PRODUCT

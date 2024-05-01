@@ -12,6 +12,10 @@ const shopSchema = new Schema(
             type: String,
             required: true,
         },
+        avatar: {
+            type: String,
+            required: true,
+        },
         description: {
             type: String,
             required: true,
@@ -56,9 +60,7 @@ const shopSchema = new Schema(
         user_liked: [{ type: Types.ObjectId, ref: "User" }],
     },
     {
-        
         timestamps: true,
-        
     }
 );
 

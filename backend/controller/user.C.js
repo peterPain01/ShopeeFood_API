@@ -96,11 +96,21 @@ module.exports = {
 
         const { updatedUser, updatedShop } =
             await userService.handleUserShopLike(shopId, userId);
-        res.status(200).json({ message: "Successful", metadata: {} });
+        res.status(200).json({ message: "Successful" });
     },
 
+    async userShopUnlike(req, res) {
+        const { shopId } = req.query;
+        const { userId } = req.user;
+
+        if (!shopId) throw new BadRequest("Missing required arguments");
+
+        const { updatedUser, updatedShop } =
+            await userService.handleUserShopUnlike(shopId, userId);
+        res.status(200).json({ message: "Successful" });
+    },
     async getAllShopUserLiked(req, res) {
-        const userId  = "662c67a897eec536b67740de";
+        const { userId } = req.user;
         const { sortBy = "latest" } = req.query;
 
         const shops = await userService.getAllShopUserLiked(userId);

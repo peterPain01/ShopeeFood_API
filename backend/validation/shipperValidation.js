@@ -30,8 +30,8 @@ async function validateCreateShipper(req, res, next) {
         await shipperSchema.validateAsync(data);
         next();
     } catch (err) {
-        deleteFileByRelativePath(avatar_file_path);
-        deleteFileByRelativePath(vehicle_image_file_path);
+        deleteFileByRelativePath(req.files["avatar"].path);
+        deleteFileByRelativePath(req.files["image"].path);
         next(new BadRequest(err?.details?.at(0)?.message || err.message));
     }
 }

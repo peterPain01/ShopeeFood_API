@@ -1,9 +1,13 @@
 const Joi = require("joi");
-const { deleteFileByRelativePath } = require("../utils/index");
+const {
+    deleteFileByRelativePath,
+    deleteRedundancyKey,
+} = require("../utils/index");
 const { BadRequest } = require("../modules/CustomError");
 const { Types, isValidObjectId } = require("mongoose");
 const { isValidOpenCloseHour } = require("../utils/shop");
 const { addressSchema } = require("./addressValidation");
+const { verifyToken } = require("../utils/auth");
 
 const shopSchema = Joi.object({
     name: Joi.string().required().trim().strict(),
@@ -11,7 +15,7 @@ const shopSchema = Joi.object({
     phone: Joi.string().required().trim().strict(),
     // addresses: Joi.array().items(addressSchema).required(),
     address: Joi.object().required(),
-    category: Joi.array().required(),
+    category: Joi.array().items().required(),
     status: Joi.string(),
     open_hour: Joi.string().required(),
     close_hour: Joi.string().required(),
@@ -30,36 +34,24 @@ const updateShopSchema = Joi.object({
 
 async function validateCreateShop(req, res, next) {
     const data = req.body;
-    console.log("data::::", data);
-    const plainObject = JSON.parse(JSON.stringify(data));
-    Object.keys(data).forEach((key) => {
-        if (!Object.keys(shopSchema.describe().keys).includes(key))
-            delete data[key];
-    });
-    plainObject.address = JSON.parse(plainObject.address);
-    req.body = JSON.parse(req.body.address);
+    console.log(data);
+    if (!req.files["avatar"] || !req.files["image"])
+        return next(new BadRequest("Missing avatar | image field"));
 
-    if (!req.file) return next(new BadRequest("Missing image for shop"));
-    const path_file_stored = req.file.path;
+    deleteRedundancyKey(data, shopSchema.describe().keys);
+
     try {
-        await shopSchema.validateAsync(plainObject);
-        const inValidItems = data.category.filter(
-            (cate) => !isValidObjectId(cate)
-        );
-        if (inValidItems.length > 0)
-            return next(
-                new BadRequest("Category must be an array of Object Id")
-            );
+        await shopSchema.validateAsync(data);
         if (!isValidOpenCloseHour(data.open_hour, data.close_hour))
             return next(
                 new BadRequest("Open or Close Hour invalid format HH:mm")
             );
         next();
     } catch (error) {
-        deleteFileByRelativePath(path_file_stored);
-        return next(
-            new BadRequest(error?.details?.at(0).message || error.message)
-        );
+        deleteFileByRelativePath(req.files["avatar"][0].path);
+        deleteFileByRelativePath(req.files["image"][0].path);
+
+        next(new BadRequest(error?.details?.at(0).message || error.message));
     }
 }
 
@@ -74,7 +66,18 @@ async function validateUpdateShop(req, res, next) {
     }
     next();
 }
+
+async function validateGetShopInfo(req, res, next) {
+    const userId = req.headers["x-client-id"];
+    const accessToken = req.headers["x-authorization"];
+    if (userId && accessToken) {
+         await verifyToken(req, res, next);
+    } else {
+        next();
+    }
+}
 module.exports = {
     validateCreateShop,
     validateUpdateShop,
+    validateGetShopInfo
 };

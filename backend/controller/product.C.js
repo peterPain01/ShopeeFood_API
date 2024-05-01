@@ -12,7 +12,13 @@ module.exports = {
         const { limit = 50, sort = "ctime", page = 1 } = req.params;
         try {
             const filter = { isPublished: true };
-            const select = ["product_name", "product_price", "product_thumb"];
+            const select = [
+                "product_name",
+                "product_price",
+                "product_thumb",
+                "product_sold",
+                "_id",
+            ];
             const products = await productService.getAllProducts({
                 limit,
                 sort,

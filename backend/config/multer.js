@@ -20,5 +20,7 @@ const storage = (destinationFolder) =>
 const upload = multer({ storage: storage("uploads") });
 const uploadFileForShipper = multer({ storage: storage("uploads/shippers") });
 const uploadComment = multer({ storage: storage("uploads/comments") });
+const uploadShop =  multer({ storage: storage("uploads/shops") });
+
 const convert_formData = multer();
-module.exports = { upload, uploadFileForShipper, uploadComment,convert_formData };
+module.exports = { upload, uploadFileForShipper, uploadComment,convert_formData,uploadShop };
