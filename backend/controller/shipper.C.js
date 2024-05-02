@@ -66,11 +66,12 @@ module.exports = {
         });
     },
 
-    async updateCurrentLocation() {
+    async updateCurrentLocation(req, res, next) {
         const { userId } = req.user;
-        const { address } = req.body;
+        const { lat, lng } = req.body;
+        console.log(lat, lng);
         const updatedAddress = await shipperModel.findByIdAndUpdate(userId, {
-            $set: { currentPosition: address },
+            $set: { currentPosition: { lat, lng } },
         });
         console.log("updatedAddress:::", updatedAddress);
         res.status(200).json({ message: "Success" });
@@ -116,5 +117,19 @@ module.exports = {
         }
 
         res.status(200).json({ message: "Success" });
+    },
+
+    async saveDeviceToken(req, res, next) {
+        const { userId: shipperId } = req.user;
+        const { token } = req.query;
+        if (!token)
+            throw new BadRequest("Missing token in your request params");
+        const temp = token;
+        console.log(temp);
+
+        await shipperService.saveDeviceToken(token, shipperId);
+        res.status(200).json({
+            message: "Token received and saved successfully",
+        });
     },
 };

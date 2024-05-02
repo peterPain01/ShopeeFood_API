@@ -29,6 +29,15 @@ module.exports = {
         });
     },
 
+    async getOverviewInfo(req, res) {
+        const { userId } = req.user;
+        const address = await userService.getAddressUser(userId);
+        const totalItem = await userService.getTotalItemInCart(userId);
+        res.status(200).json({
+            message: "Success",
+            metadata: { address, totalItem },
+        });
+    },
     async getAddressUser(req, res) {
         const { userId } = req.user;
 

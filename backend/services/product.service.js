@@ -1,4 +1,6 @@
 const productModel = require("../model/product.model");
+const commentModel = require("../model/comment.model");
+
 const { Types } = require("mongoose");
 const {
     getSelectData,
@@ -146,5 +148,26 @@ module.exports = {
 
         console.log("relatedString:::", relatedString);
         return relatedString;
+    },
+
+    async getAllCommentsOfProduct(productId) {
+        const filter = {
+            comment_productId: productId,
+        };
+        const select = [
+            "comment_userAvatar",
+            "_id",
+            "comment_shopId",
+            "comment_userId",
+            "comment_content_text",
+            "comment_content_image",
+            "comment_star",
+            "comment_title",
+            "comment_date",
+        ];
+        const comments = await commentModel
+            .find(filter)
+            .select(getSelectData(select));
+        return comments;
     },
 };

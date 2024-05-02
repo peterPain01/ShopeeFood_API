@@ -8,11 +8,14 @@ const { upload } = require("../config/multer");
 
 
 router.use(verifyToken, verifyUser);
+// get user address and count cart items
+router.get('/overview', errorHandler(UserController.getOverviewInfo)) 
 router.get("/liked/shop", errorHandler(UserController.getAllShopUserLiked));
 router.post("/like/shop", errorHandler(UserController.userShopLike));
 router.post("/unlike/shop", errorHandler(UserController.userShopUnlike));
 router.get("/", errorHandler(UserController.getUserById));
 router.get("/addresses", errorHandler(UserController.getAddressUser));
+
 
 router.patch("/", validateUpdateUser, errorHandler(UserController.update));
 router.patch(

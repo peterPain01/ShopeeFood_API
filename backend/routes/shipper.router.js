@@ -46,4 +46,6 @@ router.post(
     errorHandler(shipperController.updateCurrentLocation)
 );
 
+router.post("/token/save", errorHandler(shipperController.saveDeviceToken));
+
 module.exports = router;

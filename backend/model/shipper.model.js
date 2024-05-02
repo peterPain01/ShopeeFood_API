@@ -9,6 +9,7 @@ const shipperSchema = new Schema(
         license_plate_number: { type: String, required: true },
         vehicle_image: { type: String, required: true },
         shipper_user: { type: Types.ObjectId, required: true, ref: "User" },
+        device_token: { type: String },
     },
     {
         timestamps: true,

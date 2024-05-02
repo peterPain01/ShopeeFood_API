@@ -15,4 +15,10 @@ module.exports = {
     async findShipperById(shipperId) {
         return await shipperModel.findById(shipperId);
     },
+
+    async saveDeviceToken(token, shipperId) {
+        return await shipperModel.findByIdAndUpdate(shipperId, {
+            $set: { device_token: token },
+        });
+    },
 };

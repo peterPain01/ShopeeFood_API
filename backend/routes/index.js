@@ -12,7 +12,8 @@ const orderRouter = require("./order.route");
 const shipperRouter = require("./shipper.router");
 const adminRouter = require("./admin.route");
 const commentRouter = require("./comment.route");
-
+const errorHandler = require("../utils/errorHandler");
+const notificationService = require("../services/notification.service");
 router.use("/auth", authRouter);
 
 router.use("/order", orderRouter);
@@ -27,4 +28,8 @@ router.use("/comment", commentRouter);
 router.use(flashSaleRouter);
 router.use(categoryRouter);
 
+router.post(
+    "/notify",
+    errorHandler(notificationService.sendConfirmNotifyToShipper)
+);
 module.exports = router;

@@ -1,7 +1,12 @@
 const commentModel = require("../model/comment.model");
 const { InternalServerError } = require("../modules/CustomError");
-const { removeNestedNullUndefined, unSelectData } = require("../utils");
+const {
+    removeNestedNullUndefined,
+    unSelectData,
+    getSelectData,
+} = require("../utils");
 const config = require("../config/common");
+const userModel = require("../model/user.model");
 
 // add comment
 // delete comment
@@ -28,7 +33,6 @@ class Comment {
         this.comment_shipperId = commentData.shipperId;
         this.comment_orderId = commentData.orderId;
         this.comment_productId = commentData.productId;
-        this.comment_userAvatar = commentData.userAvatar;
         this.comment_content_text = commentData.content_text;
         this.comment_content_image = commentData.content_image;
         this.comment_star = commentData.star;
@@ -114,20 +118,38 @@ module.exports = {
         return await commentModel.find(filter).select(unSelectData(unSelect));
     },
 
-    async getCommentByProductId({ productId, limit, page }) {
-        return await commentModel
+    async getCommentByProductId({ productId, limit = 10, page = 1 }) {
+        const comments = await commentModel
             .find({
                 comment_productId: productId,
             })
             .skip((page - 1) * limit)
+            .populate("comment_userId", "avatar")
             .limit(limit);
+        console.log("comments", comments);
+        const populatedComments = comments.map((comment) => {
+            const { avatar } = comment.comment_userId;
+            return {
+                ...comment.toObject(),
+                comment_userId: comment.comment_userId._id,
+                comment_userAvatar: avatar,
+            };
+        });
+        console.log("populatedComments", populatedComments);
+
+        return populatedComments;
     },
 
     async getAllCommentOfShop(shopId, unSelect) {
         const filter = {
             comment_shopId: shopId,
         };
-        return await commentModel.find(filter).select(unSelectData(unSelect));
+        let comments = await commentModel
+            .find(filter)
+            .select(unSelectData(unSelect))
+            .populate("comment_userId", "avatar")
+            .exec();
+        return comments;
     },
 };
 

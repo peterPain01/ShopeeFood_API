@@ -20,7 +20,6 @@ module.exports = {
             productId: commentData.productId,
         });
 
-        const foundUser = await userModel.findById(userId);
         if (!foundProduct) throw new BadRequest("Product Not Found");
 
         if (req.file) {
@@ -40,7 +39,6 @@ module.exports = {
             ...commentData,
             type: config.USER_COMMENT_SHOP,
             userId,
-            userAvatar: foundUser.avatar,
             shopId: foundProduct.product_shop,
         };
         const createdComment = await commentService.createCommentForUser(

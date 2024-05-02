@@ -3,6 +3,7 @@ const {
     BadRequest,
     Api404Error,
 } = require("../modules/CustomError");
+const commentService = require("../services/comment.service");
 const productService = require("../services/product.service");
 const { Types } = require("mongoose");
 
@@ -40,7 +41,6 @@ module.exports = {
         const { limit = 50, sort = "ctime", page = 1 } = req.params;
         const { shopId } = req.query;
         if (!shopId) throw new BadRequest("Missing required arguments");
-        console.log(shopId);
         try {
             const filter = {
                 isPublished: true,
@@ -53,6 +53,7 @@ module.exports = {
                 "product_original_price",
                 "product_thumb",
                 "product_description",
+                "product_sold",
             ];
 
             const products = await productService.getAllProducts({
@@ -83,9 +84,16 @@ module.exports = {
             });
 
             if (!found_products) throw new Api404Error("Product Not Found");
-            return res
-                .status(200)
-                .json({ message: "Success", metadata: found_products });
+            const product_reviews = await commentService.getCommentByProductId({
+                productId: productId,
+            });
+            return res.status(200).json({
+                message: "Success",
+                metadata: {
+                    ...found_products,
+                    product_reviews: product_reviews || {},
+                },
+            });
         } catch (err) {
             next(new InternalServerError(err.message));
         }

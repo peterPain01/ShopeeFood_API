@@ -1,5 +1,6 @@
 const shopModel = require("../model/shop.model");
 const userModel = require("../model/user.model");
+const cartModel = require("../model/cart.model");
 const { getSelectData } = require("../utils");
 
 module.exports = {
@@ -51,11 +52,11 @@ module.exports = {
             "_id",
             "name",
             "image",
-            "avatar", 
+            "avatar",
             "description",
             "open_hour",
             "close_hour",
-            "avg_rating"
+            "avg_rating",
         ];
         return (
             await userModel.populate(user, {
@@ -65,4 +66,15 @@ module.exports = {
         ).shop_liked;
     },
 
+    async getAddressUser(userId) {
+        const user = await userModel.findById(userId);
+        return user.addresses[0] || null;
+    },
+    async getTotalItemInCart(userId) {
+        const filter = {
+            cart_user: userId,
+        };
+        const cart = await cartModel.findOne(filter);
+        return cart.cart_count_product;
+    },
 };

@@ -96,6 +96,7 @@ module.exports = {
             "order_shop",
             "order_totalPrice",
             "order_totalItems",
+            "order_listProducts",
         ];
         const orders = await orderService.getAllOnGoingOrder(userId, select);
 
@@ -109,8 +110,12 @@ module.exports = {
             "order_shop",
             "order_totalPrice",
             "order_totalItems",
+            "order_listProducts",
         ];
-        const orders = await orderService.getSuccessOrder(userId, select);
+        const orders = await orderService.getAllSuccessOrderOverview(
+            userId,
+            select
+        );
         res.status(200).json({ message: "Success", metadata: orders || {} });
     },
 };

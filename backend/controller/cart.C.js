@@ -28,7 +28,6 @@ module.exports = {
             image: foundProduct.product_thumb,
             quantity: +quantity,
         };
-
         const shopId = foundProduct.product_shop;
         if (!foundCart) {
             const newCart = await cartService.createCart(
@@ -59,16 +58,17 @@ module.exports = {
                     foundCart.cart_count_product = productToAdd.quantity;
                     foundCart.cart_shop = shopId;
                     await foundCart.save();
-                }
-                const result = await cartService.addProductToCart(
-                    userId,
-                    shopId,
-                    productToAdd
-                );
-                if (!result)
-                    throw InternalServerError(
-                        "Error while adding product to cart"
+                } else {
+                    const result = await cartService.addProductToCart(
+                        userId,
+                        shopId,
+                        productToAdd
                     );
+                    if (!result)
+                        throw InternalServerError(
+                            "Error while adding product to cart"
+                        );
+                }
             }
         }
         res.status(200).json({
