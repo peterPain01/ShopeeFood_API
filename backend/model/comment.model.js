@@ -11,7 +11,7 @@ const commentSchema = new Schema(
         },
         comment_shopId: { type: Types.ObjectId, ref: "Shop" },
         comment_shipperId: { type: Types.ObjectId, ref: "Shipper" },
-        comment_orderId: { type: Types.ObjectId, ref: "Order", required: true },
+        comment_orderId: { type: Types.ObjectId, ref: "Order" },
         comment_childId: { type: Types.ObjectId, ref: "Comment" },
         comment_type: {
             type: Number,
@@ -25,8 +25,8 @@ const commentSchema = new Schema(
 
         comment_content_text: { type: String, required: true },
         comment_content_image: String,
-        comment_star: Number,
-        comment_title: String,
+        comment_star: { type: Number, required: true },
+        comment_title: { type: String },
         comment_date: { type: Date, default: Date.now() },
         isDelete: { type: Boolean, default: false },
     },

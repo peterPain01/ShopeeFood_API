@@ -29,8 +29,9 @@ const shopSchema = new Schema(
         /* 
         address:  
         { 
-            address: ....., 
-            position:{ 
+            type: ....., 
+            street
+            latlng:{ 
                 lat: .... ,
                 lng: .......
             } 
@@ -58,6 +59,8 @@ const shopSchema = new Schema(
 
         close_hour: { type: String, required: true },
         user_liked: [{ type: Types.ObjectId, ref: "User" }],
+        device_token: { type: String },
+        totalComments: { type: Number, default: 0 },
     },
     {
         timestamps: true,

@@ -17,12 +17,13 @@ const {
     validateUpdateProduct,
 } = require("../validation/productValidation");
 
+router.get('/all', validateGetShopInfo, errorHandler(ShopController.getInfoOFAllShop))
 router.get(
     "/:shopId/products/search/:keySearch",
     errorHandler(ShopController.searchProductInShop)
 );
 router.get("/category", errorHandler(ShopController.getShopByCategory));
-router.get("/top-rated", errorHandler(ShopController.getTopRatedShops));
+router.get("/top-rated", validateGetShopInfo, errorHandler(ShopController.getTopRatedShops));
 router.get("/detail", validateGetShopInfo, errorHandler(ShopController.getShopInfo));
 router.get("/related", errorHandler(ShopController.getShopByKeySearch));
 router.get("/suggest/", errorHandler(ShopController.getRelatedKey));
@@ -43,16 +44,20 @@ router.get("/discount", errorHandler(discountController.getDiscountByShopId));
 
 // ===== SHOP =====
 router.use(verifyShop);
+
 router.post(
     "/update",
     [upload.single("image"), validateUpdateShop],
     errorHandler(ShopController.updateShop)
 );
 
+router.post('/token/save', errorHandler(ShopController.saveDeviceToken))
+
+
 // ===== PRODUCT =====
 router.get("/drafts", errorHandler(ShopController.getAllDraftsForShop));
 router.get("/publish", errorHandler(ShopController.getAllPublishForShop));
-
+router.get('/product/all', errorHandler(ShopController.getAllProduct))
 router.post("/publish", errorHandler(ShopController.publishProductByShop));
 router.post(
     "/un-publish",
@@ -64,11 +69,13 @@ router.post(
     [upload.single("product_thumb"), validateCreateProduct],
     errorHandler(ShopController.createProduct)
 );
+
 router.patch(
     "/product",
     [upload.single("product_thumb"), validateUpdateProduct],
     errorHandler(ShopController.updateProduct)
 );
+
 router.delete("/product", errorHandler(ShopController.deleteProduct));
 
 // ===== DISCOUNT =====

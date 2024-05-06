@@ -12,10 +12,12 @@ const orderRouter = require("./order.route");
 const shipperRouter = require("./shipper.router");
 const adminRouter = require("./admin.route");
 const commentRouter = require("./comment.route");
+const stateRouter = require("./state.router");
 const errorHandler = require("../utils/errorHandler");
 const notificationService = require("../services/notification.service");
-router.use("/auth", authRouter);
 
+router.use("/auth", authRouter);
+router.use("/state", stateRouter);
 router.use("/order", orderRouter);
 router.use("/shipper", shipperRouter);
 router.use("/admin", adminRouter);

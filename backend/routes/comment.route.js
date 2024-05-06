@@ -25,7 +25,7 @@ router.get("/all/shop", errorHandler(commentController.getAllCommentOfShop));
 // user comment product of shop
 router.post(
     "/user/shop",
-    [verifyUser, uploadComment.single("content_image")],
+    // [verifyUser, uploadComment.single("content_image")],
     validateCreateCommentUserToShop,
     errorHandler(commentController.createCommentForUser)
 );

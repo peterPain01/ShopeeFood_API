@@ -34,16 +34,23 @@ const orderSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: "Shipper",
         },
-
+        order_shippingFee: {
+            type: Number,
+            required: true,
+        },
+        order_shipperReceive: {
+            type: Number,
+            required: true,
+        },
         order_totalPrice: { type: Number, required: true },
         order_subPrice: { type: Number, required: true },
         order_listProducts: { type: Array, required: true },
-        order_totalItems: { type: Number, required: true }, 
+        order_totalItems: { type: Number, required: true },
         // order_discountUsed: { types: Array },
         order_note: String,
         order_paymentMethod: {
             type: String,
-            enum: ["cash", "vnpay"],
+            enum: ["cash", "vnpay", "zalopay"],
             required: true,
         },
         order_finishAt: {

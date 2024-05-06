@@ -17,8 +17,8 @@ const productSchema = new Schema({
     product_sold: { type: Number, default: 0 },
     product_like: { type: Number, default: 0 },
 
-    isDraft: { type: Boolean, default: true, index: true, select: false },
-    isPublished: { type: Boolean, default: false, index: true, select: false },
+    isDraft: { type: Boolean, default: true, index: true },
+    isPublished: { type: Boolean, default: false, index: true },
 });
 
 // create index for search
