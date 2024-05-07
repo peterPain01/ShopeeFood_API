@@ -1,32 +1,30 @@
 var admin = require("firebase-admin");
 
 var serviceAccount = require("../serviceAccountKey.json");
+const { BadRequest } = require("../modules/CustomError");
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
 
-async function sendConfirmNotifyToShipper(req, res, next) {
+async function sendNotifyToDevice(title, body, tokenDevice) {
     const message = {
         notification: {
-            title: "New Order",
-            body: "You have a new order to confirm.",
+            title,
+            body,
         },
-        token: "eH89GMBgTuuT5iU2Uyexyz:APA91bGAgoDSu8F9XmhwRdWsGGhSo8AsCFpGVhg5xr3ynR9QTq4sZHXaPy3cl1B1N2VOO9ycZY4CGi5mENg0tOUiFhljpwAvIRgY9FyH3wytAZHg6wRE1EPHtBTDQOL-7jSUpzpPJsHS",
+        token: tokenDevice,
     };
 
-    admin
-        .messaging()
-        .send(message)
-        .then((response) => {
-            console.log("Successfully sent message:", response);
-        })
-        .catch((error) => {
-            console.log("Error sending message:", error);
-        });
-        res.status(200).json({message: "Successfully sent message"})
+    try {
+        const response = await admin.messaging().send(message);
+        console.log("Successfully sent message:", response);
+    } catch (error) {
+        throw new BadRequest("Error sending message:", error);
+    }
+    return;
 }
 
 module.exports = {
-    sendConfirmNotifyToShipper,
+    sendNotifyToDevice,
 };

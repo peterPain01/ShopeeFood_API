@@ -1,8 +1,16 @@
-const moment = require("moment");
 const config = require("../config/vnpay");
 
 let querystring = require("qs");
 let crypto = require("crypto");
+
+const axios = require("axios").default;
+const CryptoJS = require("crypto-js");
+const moment = require("moment");
+
+const rechargeCallBack =
+    "https://34ee-115-73-214-48.ngrok-free.app/shipper/callback/zalopay";
+const orderCallBack =
+    "https://34ee-115-73-214-48.ngrok-free.app/order/callback/zalopay";
 
 module.exports = {
     /*
@@ -92,6 +100,68 @@ module.exports = {
                 message: "success",
                 code: "97",
             };
+        }
+    },
+
+    async getZalopayUrl(
+        items,
+        amount,
+        desc = "",
+        recharge = false,
+        shipperId = ""
+    ) {
+        const config = {
+            app_id: process.env.ZALOPAY_APPID,
+            key1: process.env.ZALOPAY_KEY1,
+            key2: process.env.ZALOPAY_KEY2,
+            endpoint: process.env.ZALOPAY_ENDPONIT,
+        };
+
+        const embed_data = {
+            redirecturl: "https://docs.zalopay.vn/result",
+            recharge: false,
+            shipperId,
+        };
+
+        const transID = Math.floor(Math.random() * 1000000);
+        const order = {
+            app_id: config.app_id,
+            app_trans_id: `${moment().format("YYMMDD")}_${transID}`, // translation missing: vi.docs.shared.sample_code.comments.app_trans_id
+            app_user: "user123",
+            app_time: Date.now(), // miliseconds
+            item: JSON.stringify(items),
+            embed_data: JSON.stringify(embed_data),
+            amount,
+            description:
+                desc || `Food HCMUS - Payment for the order #${transID}`,
+            bank_code: "",
+            callback_url: recharge ? rechargeCallBack : orderCallBack,
+        };
+
+        // appid|app_trans_id|appuser|amount|apptime|embeddata|item
+        const data =
+            config.app_id +
+            "|" +
+            order.app_trans_id +
+            "|" +
+            order.app_user +
+            "|" +
+            order.amount +
+            "|" +
+            order.app_time +
+            "|" +
+            order.embed_data +
+            "|" +
+            order.item;
+        order.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
+
+        try {
+            const result = await axios.post(config.endpoint, null, {
+                params: order,
+            });
+            return { ...result.data, app_trans_id: order.app_trans_id };
+        } catch (err) {
+            throw new Error(err.message);
         }
     },
 };

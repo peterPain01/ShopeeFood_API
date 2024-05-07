@@ -113,7 +113,8 @@ module.exports = {
         return await productModel
             .find({ product_shop: new Types.ObjectId(shopId) })
             .select(unSelectData(unSelect))
-            .sort({ product_sold: -1 });
+            .sort({ product_sold: -1 })
+            .limit(5);
     },
 
     async getRelatedKey(keySearch) {

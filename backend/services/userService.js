@@ -75,6 +75,6 @@ module.exports = {
             cart_user: userId,
         };
         const cart = await cartModel.findOne(filter);
-        return cart.cart_count_product;
+        return cart?.cart_count_product;
     },
 };

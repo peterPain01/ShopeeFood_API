@@ -1,17 +1,17 @@
 const { update } = require("lodash");
 const productModel = require("../model/product.model");
-const { unPublishProductByShop } = require("../controller/shop.C");
 const shopModel = require("../model/shop.model");
 const { Types } = require("mongoose");
 const { unSelectData, getSelectData } = require("../utils");
+const { sendNotifyToDevice } = require("./notification.service");
 
 module.exports = {
     async findAllDraftsForShop({ query, limit, skip }) {
-        return await this.queryAllProduct(query, limit, skip);
+        return await queryAllProduct({ query, limit, skip });
     },
 
     async findAllPublishForShop({ query, limit, skip }) {
-        return await this.queryAllProduct(query, limit, skip);
+        return await queryAllProduct({ query, limit, skip });
     },
 
     async queryAllProduct({ query, limit, skip }) {
@@ -21,8 +21,7 @@ module.exports = {
             .sort({ updated_at: -1 })
             .skip(skip)
             .limit(limit)
-            .lean()
-            .exec();
+            .lean();
     },
 
     async publishProductByShop(shopId, productId) {
@@ -52,8 +51,8 @@ module.exports = {
         return await productModel.findOneAndUpdate(filter, update, option);
     },
 
-    async findShopById(shopId) {
-        return await shopModel.findById(shopId);
+    async findShopById(shopId, select = []) {
+        return await shopModel.findById(shopId).select(getSelectData(select));
     },
 
     async searchProductInShop(keySearch, shopId) {
@@ -150,4 +149,40 @@ module.exports = {
 
         return relatedString;
     },
+
+    async saveDeviceToken(token, shopId) {
+        return await shopModel.findByIdAndUpdate(shopId, {
+            $set: { device_token: token },
+        });
+    },
+
+    async sendNotificationToShop(shopId, body) {
+        const tokenObject = await shopModel
+            .findById(shopId)
+            .select({ device_token: 1, _id: 0 })
+            .lean();
+        const tokenDevice = tokenObject.device_token;
+        console.log("Shop tokenDevice::", tokenDevice);
+        if (!tokenDevice) return null;
+
+        const title = "New Order";
+        try {
+            const response = await sendNotifyToDevice(title, body, tokenDevice);
+            console.log("Successful send to shop", response);
+        } catch (err) {
+            console.log(err.message);
+            return null;
+        }
+        return true;
+    },
 };
+
+async function queryAllProduct({ query, limit, skip }) {
+    return await productModel
+        .find(query)
+        .populate("product_shop", "name phone -_id")
+        .sort({ updated_at: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean();
+}

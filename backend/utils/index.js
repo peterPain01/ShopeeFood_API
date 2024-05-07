@@ -40,7 +40,7 @@ const NestedObjectParser = (obj) => {
 };
 
 const deleteFileByRelativePath = (filePath) => {
-    if(!filePath) return 
+    if (!filePath) return;
     fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
             console.error("File does not exist or cannot be accessed");
@@ -80,6 +80,39 @@ function deleteRedundancyKey(raw, standard) {
         if (!Object.keys(standard).includes(key)) delete raw[key];
     });
 }
+
+// haversine
+function distanceBetweenTwoPoints(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth radius in kilometers
+
+    const latDistance = toRadians(lat2 - lat1);
+    const lonDistance = toRadians(lon2 - lon1);
+    const a =
+        Math.sin(latDistance / 2) * Math.sin(latDistance / 2) +
+        Math.cos(toRadians(lat1)) *
+            Math.cos(toRadians(lat2)) *
+            Math.sin(lonDistance / 2) *
+            Math.sin(lonDistance / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+
+    return distance.toFixed(2);
+}
+
+function toRadians(degrees) {
+    return (degrees * Math.PI) / 180;
+}
+
+// move it to database
+function findShippingFee(distance) {
+    if (distance < 2) return 16000;
+    else if (distance < 6) return 20000;
+    else if (distance < 8) return 22000;
+    else if (distance < 12) return 28000;
+    else if (distance < 20) return 40000;
+    else return 48000;
+}
+
 module.exports = {
     getInfoData,
     getSelectData,
@@ -90,4 +123,6 @@ module.exports = {
     removeExtInFileName,
     createDateFromString,
     deleteRedundancyKey,
+    distanceBetweenTwoPoints,
+    findShippingFee,
 };

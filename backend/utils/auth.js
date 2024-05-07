@@ -9,6 +9,7 @@ const {
 } = require("../modules/CustomError.js");
 const { getInfoData } = require("../utils/index.js");
 const keytokenModel = require("../model/keytoken.model.js");
+const shipperService = require("../services/shipper.service.js");
 
 module.exports = {
     async verifyToken(req, res, next) {
@@ -35,6 +36,9 @@ module.exports = {
                     req.user = decodedUser;
                 }
             });
+            if (req.user.role === "shipper") {
+                await shipperService.setState(userId, true);
+            }
             return next();
         } catch (err) {
             next(err);

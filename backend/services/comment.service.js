@@ -7,6 +7,7 @@ const {
 } = require("../utils");
 const config = require("../config/common");
 const userModel = require("../model/user.model");
+const shopModel = require("../model/shop.model");
 
 // add comment
 // delete comment
@@ -33,11 +34,11 @@ class Comment {
         this.comment_shipperId = commentData.shipperId;
         this.comment_orderId = commentData.orderId;
         this.comment_productId = commentData.productId;
-        this.comment_content_text = commentData.content_text;
+        this.comment_content_text = commentData.comment_content_text;
         this.comment_content_image = commentData.content_image;
-        this.comment_star = commentData.star;
-        this.comment_title = commentData.title;
-        this.comment_date = commentData.date;
+        this.comment_star = commentData.comment_star;
+        this.comment_title = commentData.comment_title;
+        this.comment_date = commentData.comment_date;
         this.comment_type = commentData.type;
     }
 }
@@ -67,7 +68,7 @@ module.exports = {
             .sort(sortBy)
             .skip((page - 1) * limit)
             .limit(limit)
-            .populate("Product", "name image")
+            .populate("comment_productId", "name image")
             .select(unSelectData(["__v", "isDelete"]));
     },
 
@@ -150,6 +151,27 @@ module.exports = {
             .populate("comment_userId", "avatar")
             .exec();
         return comments;
+    },
+
+    async updateRatingAndCommentForShop(shopId, star) {
+        const select = ["avg_rating", "user_liked"];
+        const shop = await shopModel
+            .findById(shopId)
+            .select(getSelectData(select));
+
+        if (!shop.totalComments || shop.totalComments === 0) {
+            (shop.avg_rating = star), (shop.totalComments = 1);
+            await shop.save();
+            console.log("First comment of shop");
+            return;
+        }
+        const totalComments = shop.totalComments;
+        const avg_rating = shop.avg_rating;
+        shop.avg_rating =
+            (avg_rating * totalComments + star) / (totalComments + 1);
+        shop.totalComments = totalComments + 1;
+        console.log("avg_rating:::", avg_rating);
+        await shop.save();
     },
 };
 
