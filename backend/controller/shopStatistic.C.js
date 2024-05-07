@@ -19,19 +19,22 @@ module.exports = {
         const {
             numPendingOrder,
             numShippingOrder,
-            totalRevenue: totalRevenueToday,
+            totalRevenueInMonth,
             trendingProducts,
             reportRevenue,
+            totalComments,
+            address,
         } = await shopStatisticService.getStatisticNumberOrder(shopId);
-
         res.status(200).json({
             message: "Success",
             metadata: {
                 numPendingOrder,
                 numShippingOrder,
-                totalRevenueToday,
+                totalRevenueInMonth,
                 trendingProducts,
                 reportRevenue,
+                totalComments,
+                address,
             },
         });
     },

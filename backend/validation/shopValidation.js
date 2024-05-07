@@ -34,7 +34,12 @@ const updateShopSchema = Joi.object({
 
 async function validateCreateShop(req, res, next) {
     const data = req.body;
+    console.log("validateCreateShop::::", req.body);
+
+    const validAddress = JSON.parse(data.address);
+    data.address = validAddress;
     console.log(data);
+
     if (!req.files["avatar"] || !req.files["image"])
         return next(new BadRequest("Missing avatar | image field"));
 
@@ -71,13 +76,14 @@ async function validateGetShopInfo(req, res, next) {
     const userId = req.headers["x-client-id"];
     const accessToken = req.headers["x-authorization"];
     if (userId && accessToken) {
-         await verifyToken(req, res, next);
+        await verifyToken(req, res, next);
     } else {
         next();
     }
 }
+
 module.exports = {
     validateCreateShop,
     validateUpdateShop,
-    validateGetShopInfo
+    validateGetShopInfo,
 };

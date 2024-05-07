@@ -1,6 +1,19 @@
 const { createClient } = require("redis");
 
-const client = createClient();
+const client = createClient({
+    socket: {
+        reconnectStrategy: function (retries) {
+            if (retries > 20) {
+                console.log(
+                    "Too many attempts to reconnect. Redis connection was terminated"
+                );
+                return new Error("Too many retries.");
+            } else {
+                return retries * 500; // delay time reconnect
+            }
+        },
+    },
+});
 
 client.on("error", (err) => console.error(err));
 

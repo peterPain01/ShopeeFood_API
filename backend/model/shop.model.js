@@ -53,6 +53,7 @@ const shopSchema = new Schema(
 
         avg_rating: {
             type: Number,
+            default: 0,
         },
 
         open_hour: { type: String, required: true },

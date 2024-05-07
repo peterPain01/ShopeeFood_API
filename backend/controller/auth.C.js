@@ -6,9 +6,15 @@ const {
     BadRequest,
     ConflictRequest,
     InternalServerError,
+    Api404Error,
 } = require("../modules/CustomError.js");
 const { getAuthTokenAndStore } = require("../utils/auth.js");
 const otpService = require("../services/otp.service.js");
+const shipperModel = require("../model/shipper.model.js");
+const {
+    TrustProductsEntityAssignmentsListInstance,
+} = require("twilio/lib/rest/trusthub/v1/trustProducts/trustProductsEntityAssignments.js");
+const shipperService = require("../services/shipper.service.js");
 
 module.exports = {
     async verifyOTP(req, res) {
@@ -58,7 +64,7 @@ module.exports = {
         console.log(newUser);
         if (!newUser) throw new InternalServerError("User failure created");
 
-        res.status(200).json({
+        res.status(201).json({
             message: "Created User Success",
         });
     },
@@ -83,9 +89,14 @@ module.exports = {
 
     async logout(req, res) {
         const keyStore = req.keyStore;
+        const { userId, role } = req.user;
+        if (role === "shipper") {
+            const shipper = await shipperService.setState(userId, false);
+            if (!shipper) throw Api404Error("Shipper Not Found");
+        }
         if (!keyStore) throw new InternalServerError("Some error on Server");
         await KeyTokenService.removeTokenById(keyStore._id);
-        
+
         res.status(200).json({ message: "User Successfully Logout" });
     },
 };

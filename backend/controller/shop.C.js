@@ -11,7 +11,11 @@ const productService = require("../services/product.service");
 const userModel = require("../model/user.model");
 const shopUtils = require("../utils/shop");
 const { uploadFileFromLocal } = require("../services/upload.service");
-const { removeExtInFileName, deleteFileByRelativePath } = require("../utils");
+const {
+    removeExtInFileName,
+    deleteFileByRelativePath,
+    distanceBetweenTwoPoints,
+} = require("../utils");
 
 module.exports = {
     // SHOP
@@ -64,7 +68,6 @@ module.exports = {
         console.log(new_shop);
         res.status(201).json({
             message: "Shop Successfully Created",
-            metadata: new_shop,
         });
     },
 
@@ -97,6 +100,20 @@ module.exports = {
         res.status(200).json({
             message: "Shop Info Successful Updated",
             metadata: "",
+        });
+    },
+
+    // Save Device Token
+    async saveDeviceToken(req, res) {
+        const { userId: shopId } = req.user;
+        const { token } = req.query;
+        if (!token)
+            throw new BadRequest("Missing token in your request params");
+        console.log("shop device token:::", token);
+
+        await shopService.saveDeviceToken(token, shopId);
+        res.status(200).json({
+            message: "Token received and saved successfully",
         });
     },
 
@@ -150,8 +167,11 @@ module.exports = {
     },
 
     async getTopRatedShops(req, res) {
+        let userId = "";
+        if (req.user) userId = req.user.userId;
+
         const { limit = 50, skip = 0 } = req.query;
-        const select = ["name", "image", "category", "address", "avg_rating"];
+        const select = ["name", "image", "category", "addresses", "avg_rating"];
         let shopTopRated = await shopModel
             .find({})
             .populate("category")
@@ -166,6 +186,25 @@ module.exports = {
             );
 
         shopTopRated = JSON.parse(JSON.stringify(shopTopRated));
+        if (userId) {
+            const user = await userModel.findById(userId);
+            shopTopRated.forEach((shop) => {
+                const latUser =
+                    user?.addresses[0]?.latlng?.lat || 0.76285103252918;
+                const lngUser =
+                    user?.addresses[0]?.latlng?.lng || 106.68251294642687;
+
+                const latShop = shop.addresses[0].latlng.lat;
+                const lngShop = shop.addresses[0].latlng.lng;
+
+                shop.distance = distanceBetweenTwoPoints(
+                    latUser,
+                    lngUser,
+                    latShop,
+                    lngShop
+                );
+            });
+        }
         shopTopRated.forEach((shop) => {
             if (shop.category) {
                 const temp = shop.category.map((cate) => {
@@ -178,7 +217,7 @@ module.exports = {
                 shop.category = temp;
             } else shop.category = [];
         });
-
+        console.log("shopTopRated::", shopTopRated);
         res.status(200).json({
             message: "Successfully",
             metadata: shopTopRated,
@@ -195,7 +234,14 @@ module.exports = {
         if (!Types.ObjectId.isValid(shopId))
             throw new BadRequest("Shop Id is not in valid type");
 
-        const unSelect = ["roles", "status", "owner", "__v"];
+        const unSelect = [
+            "roles",
+            "status",
+            "owner",
+            "__v",
+            "createdAt",
+            "updatedAt",
+        ];
 
         const shopDetailInfo = await shopService.getDetailOfShop(
             shopId,
@@ -204,39 +250,68 @@ module.exports = {
         if (!shopDetailInfo) throw new Api404Error("Shop Not Found");
 
         let isUserLiked = false;
+        let distance = 0;
         if (userId) {
+            const user = await userModel.findById(userId).lean();
+            distance = distanceBetweenTwoPoints(
+                user.addresses[0]?.latlng.lat || 0,
+                user.addresses[0]?.latlng.lng || 0,
+                shopDetailInfo.addresses[0].latlng.lat || 0,
+                shopDetailInfo.addresses[0].latlng.lng || 0
+            );
             isUserLiked = shopDetailInfo.user_liked.includes(userId);
         }
-        console.log(shopDetailInfo.user_liked);
-        console.log({ ...shopDetailInfo, isUserLiked });
+        delete shopDetailInfo.user_liked;
+        console.log(shopDetailInfo);
         res.status(200).json({
             message: "Success",
-            metadata: { ...shopDetailInfo, isUserLiked },
+            metadata: { ...shopDetailInfo, isUserLiked, distance },
         });
     },
 
     // PRODUCT
     async getAllDraftsForShop(req, res) {
         const { userId: shopId } = req.user;
-        const query = { product_shop: shopId, isDraft: true };
-
+        const query = {
+            product_shop: shopId,
+            isDraft: true,
+            isPublished: false,
+        };
         const products = await shopService.findAllDraftsForShop({
             query,
             skip: 0,
             limit: 50,
         });
+        console.log("Unpublish product::: ", products);
         if (!products) throw new Api404Error("All drafts Not Found");
         res.status(200).json({ message: "Success", metadata: products });
     },
 
     async getAllPublishForShop(req, res) {
         const { userId: shopId } = req.user;
-        const query = { product_shop: shopId, isPublish: true };
+        const query = { product_shop: shopId, isPublished: true };
         const products = await shopService.findAllPublishForShop({
             query,
             skip: 0,
             limit: 50,
         });
+
+        if (!products) throw new Api404Error("All drafts Not Found");
+        res.status(200).json({ message: "Success", metadata: products });
+    },
+
+    async getAllProduct(req, res) {
+        const { userId: shopId } = req.user;
+        const query = { product_shop: shopId };
+        const products = await shopService.queryAllProduct({
+            query,
+            skip: 0,
+            limit: 50,
+        });
+        products.forEach((product) => {
+            delete product.isPublished;
+        });
+        console.log("products::::", products);
         if (!products) throw new Api404Error("All drafts Not Found");
         res.status(200).json({ message: "Success", metadata: products });
     },
@@ -255,10 +330,9 @@ module.exports = {
             throw new InternalServerError(
                 "Error occurred when publish product || Product Not Found"
             );
-
+        console.log("updatedProduct:::123 publish", updatedProduct);
         res.status(200).json({
             message: "Product Successfully Published",
-            metadata: {},
         });
     },
 
@@ -279,7 +353,6 @@ module.exports = {
 
         res.status(200).json({
             message: "Product Successfully UN_Published",
-            metadata: {},
         });
     },
 
@@ -297,10 +370,12 @@ module.exports = {
                 removeExtInFileName(req.file.filename),
                 process.env.CLOUDINARY_SHOP_PRODUCT_PATH
             );
-            if (!image_url) deleteFileByRelativePath(req.file.path);
-            throw new BadRequest(
-                "Cant upload the product image to cloud please try again"
-            );
+            if (!image_url) {
+                deleteFileByRelativePath(req.file.path);
+                throw new BadRequest(
+                    "Cant upload the product image to cloud please try again"
+                );
+            }
             file_path = image_url;
         }
         if (file_path)
@@ -387,6 +462,63 @@ module.exports = {
         res.status(200).json({
             message: "Successfully",
             metadata: foundProducts,
+        });
+    },
+
+    async getInfoOFAllShop(req, res) {
+        let userId = "";
+        if (req.user) userId = req.user.userId;
+
+        const { limit = 50, skip = 0 } = req.query;
+        const select = ["name", "image", "category", "addresses", "avg_rating"];
+        let shops = await shopModel
+            .find({})
+            .populate("category")
+            .select(select)
+            .skip(skip)
+            .limit(limit);
+
+        if (!shops)
+            throw new InternalServerError(
+                "Error occurred when get all shops"
+            );
+
+        shops = JSON.parse(JSON.stringify(shops));
+        if (userId) {
+            const user = await userModel.findById(userId);
+            shops.forEach((shop) => {
+                const latUser =
+                    user?.addresses[0]?.latlng?.lat || 0.76285103252918;
+                const lngUser =
+                    user?.addresses[0]?.latlng?.lng || 106.68251294642687;
+
+                const latShop = shop.addresses[0].latlng.lat;
+                const lngShop = shop.addresses[0].latlng.lng;
+
+                shop.distance = distanceBetweenTwoPoints(
+                    latUser,
+                    lngUser,
+                    latShop,
+                    lngShop
+                );
+            });
+        }
+        shops.forEach((shop) => {
+            if (shop.category) {
+                const temp = shop.category.map((cate) => {
+                    return {
+                        _id: cate._id,
+                        name: cate.category_name || "",
+                        image: cate.category_image || "",
+                    };
+                });
+                shop.category = temp;
+            } else shop.category = [];
+        });
+        console.log("shops::", shops);
+        res.status(200).json({
+            message: "Successfully",
+            metadata: shops,
         });
     },
 };
