@@ -7,7 +7,6 @@ const commentService = require("../services/comment.service");
 const productService = require("../services/product.service");
 const { uploadFileFromLocalWithMulter } = require("../services/upload.service");
 const { deleteFileByRelativePath } = require("../utils");
-const userModel = require("../model/user.model");
 const config = require("../config/common");
 
 module.exports = {
@@ -34,12 +33,12 @@ module.exports = {
                 content_image: image_uploaded_url || "",
             };
         }
-
+        const shopId = foundProduct.product_shop;
         commentData = {
             ...commentData,
             type: config.USER_COMMENT_SHOP,
             userId,
-            shopId: foundProduct.product_shop,
+            shopId,
         };
         const createdComment = await commentService.createCommentForUser(
             commentData
@@ -48,6 +47,12 @@ module.exports = {
             throw new InternalServerError(
                 "Some error ocurred when create comment"
             );
+
+        // update rating and totalComments for Shop
+        await commentService.updateRatingAndCommentForShop(
+            shopId,
+            commentData.comment_star
+        );
         res.status(200).json({ message: "Comment Successful Created" });
     },
 
@@ -165,6 +170,11 @@ module.exports = {
             shopId,
             unSelect
         );
+        comments.forEach((comment) => {
+            comment.comment_userAvatar = comment.comment_userId.avatar;
+            comment.comment_userId = comment.comment_userId._id;
+        });
+        console.log("comments::", comments);
         res.status(200).json({
             message: "Successful",
             metadata: comments || {},

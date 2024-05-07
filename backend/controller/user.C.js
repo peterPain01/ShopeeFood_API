@@ -5,14 +5,21 @@ const {
     Api404Error,
     InternalServerError,
 } = require("../modules/CustomError.js");
-const { uploadFileFromLocal } = require("../services/upload.service.js");
+const {
+    uploadFileFromLocal,
+    uploadFileFromLocalWithMulter,
+} = require("../services/upload.service.js");
 const {
     getInfoData,
     unSelectData,
     removeExtInFileName,
     deleteFileByRelativePath,
+    findShippingFee: findShippingFeeByDistance,
+    distanceBetweenTwoPoints,
 } = require("../utils/index.js");
 const userService = require("../services/userService.js");
+const cartService = require("../services/cart.service.js");
+const shopService = require("../services/shop.service.js");
 
 module.exports = {
     async getUserById(req, res) {
@@ -38,6 +45,7 @@ module.exports = {
             metadata: { address, totalItem },
         });
     },
+
     async getAddressUser(req, res) {
         const { userId } = req.user;
 
@@ -56,15 +64,34 @@ module.exports = {
 
     async update(req, res) {
         const { userId } = req.user;
-        const updatedUser = req.body;
+        let updatedUser = req.body;
         console.log(updatedUser);
 
         if (!userId || !updatedUser)
             throw new BadRequest("Missing some information in body");
 
+        const file = req?.file;
+        let file_path = "";
+        if (file) {
+            const { image_url } = await uploadFileFromLocal(
+                req.file.path,
+                removeExtInFileName(req.file.filename),
+                process.env.CLOUDINARY_AVATAR_PATH
+            );
+            if (!image_url) {
+                deleteFileByRelativePath(req.file.path);
+                throw new InternalServerError(
+                    "Network server Error, Please Try Again"
+                );
+            }
+            file_path = image_url;
+        }
+        if (file_path) {
+            updatedUser = { ...updatedUser, avatar: file_path };
+        }
         const result = await User.updateOne(
             { _id: userId },
-            { $set: { addresses: updatedUser.addresses } }
+            { $set: { ...updatedUser } }
         );
 
         if (result.modifiedCount === 0) throw new Api404Error("User not found");
@@ -118,6 +145,7 @@ module.exports = {
             await userService.handleUserShopUnlike(shopId, userId);
         res.status(200).json({ message: "Successful" });
     },
+
     async getAllShopUserLiked(req, res) {
         const { userId } = req.user;
         const { sortBy = "latest" } = req.query;
@@ -128,5 +156,27 @@ module.exports = {
             shops?.reverse();
         }
         res.status(200).json({ message: "Successful", metadata: shops || [] });
+    },
+
+    async findShippingFee(req, res) {
+        const { userId } = req.user;
+        const { lat, lng } = req.query;
+        if (!lat || !lng) throw new BadRequest("Missing lat lng in req.query");
+        const cartOfUser = await cartService.findCartByUserId(userId);
+        console.log("cartOfUser:::", cartOfUser);
+        const shop = await shopService.findShopById(cartOfUser.cart_shop);
+        console.log("shop:::", shop);
+
+        const distanceShopUser = distanceBetweenTwoPoints(
+            lat,
+            lng,
+            shop.addresses[0].latlng.lat,
+            shop.addresses[0].latlng.lng
+        );
+
+        console.log(distanceShopUser);
+        const shippingFee = findShippingFeeByDistance(distanceShopUser);
+        console.log("shippingFee::", shippingFee);
+        res.status(200).json({ message: "Success", metadata: shippingFee });
     },
 };

@@ -11,8 +11,9 @@ const currentPositionObject = Joi.object({
 });
 
 const shipperSchema = Joi.object({
-    balance: Joi.number(),
     license_plate_number: Joi.string().required(),
+    fullname: Joi.string().required(),
+    phone: Joi.string().required(),
 });
 
 const shipperUpdateSchema = Joi.object({

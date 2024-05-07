@@ -79,9 +79,8 @@ module.exports = {
     async getCart(req, res) {
         const { userId } = req.user;
         const cart = await cartService.findCartByUserId(userId);
-        // voi moi product trong cart
-        // check xem gia da doi hay chua
-        // neu doi roi thi cap nhat gia moi cho gio hang
+
+        console.log("cart::", cart);
         if (!cart)
             return res
                 .status(404)
