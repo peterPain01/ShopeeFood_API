@@ -5,17 +5,19 @@ const {
     InternalServerError,
     Api404Error,
 } = require("../modules/CustomError");
+const { unSelectData } = require("../utils");
 
 module.exports = {
     async checKExistCart(cardId) {
         return await cartModel.findById(cardId).lean();
     },
 
-    async findCartByUserId(userId) {
+    async findCartByUserId(userId, unSelect = []) {
         return await cartModel
             .findOne({
                 cart_user: new Types.ObjectId(userId),
             })
+            .select(unSelectData(unSelect))
             .lean();
     },
 

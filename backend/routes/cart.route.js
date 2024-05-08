@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const cartController = require("../controller/cart.C");
+const cartRedisController = require("../controller/cartRedis.C");
+
 const { verifyToken } = require("../utils/auth");
 const errorHandler = require("../utils/errorHandler");
 
@@ -28,5 +30,16 @@ router.patch(
     "/inc/product/:product_id",
     errorHandler(cartController.incProductQuantity)
 );
+
+
+// ===== REDIS =====
+router.post("/redis", errorHandler(cartRedisController.addProductToCart));
+router.patch(
+    "/redis/remove/product/",
+    errorHandler(cartRedisController.removeProductFromCart)
+);
+router.delete("/redis", errorHandler(cartRedisController.deleteCart));
+router.get("/redis", errorHandler(cartRedisController.getCart));
+
 
 module.exports = router;

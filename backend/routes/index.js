@@ -30,8 +30,4 @@ router.use("/comment", commentRouter);
 router.use(flashSaleRouter);
 router.use(categoryRouter);
 
-router.post(
-    "/notify",
-    errorHandler(notificationService.sendConfirmNotifyToShipper)
-);
 module.exports = router;

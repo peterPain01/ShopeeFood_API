@@ -14,6 +14,10 @@ module.exports = {
         const { userId } = req.user;
         const { productId, quantity = 1 } = req.query;
 
+        if (!productId) throw new BadRequest("Missing productId");
+        if (quantity < 0)
+            throw new BadRequest("Quantity should be greater than 0");
+
         const foundProduct = await productService.checKExistProduct(productId);
         if (!foundProduct) throw new Api404Error("Product Not Found");
 
@@ -78,7 +82,14 @@ module.exports = {
 
     async getCart(req, res) {
         const { userId } = req.user;
-        const cart = await cartService.findCartByUserId(userId);
+        const unSelect = [
+            "cart_user",
+            "cart_shop",
+            "modifiedOn",
+            "__v",
+            "createdOn",
+        ];
+        const cart = await cartService.findCartByUserId(userId, unSelect);
 
         console.log("cart::", cart);
         if (!cart)

@@ -9,7 +9,7 @@ const client = createClient({
                 );
                 return new Error("Too many retries.");
             } else {
-                return retries * 500; // delay time reconnect
+                return retries * 500; // delay time reconnect in ms
             }
         },
     },

@@ -1,6 +1,4 @@
 const redis = require("../services/initRedis");
-const express = require("express");
-const app = express();
 
 const getIpUser = (req) => {
     return req.headers["x-forwarded-for"] || req.connection.remoteAddress;
@@ -29,5 +27,7 @@ const ttl = async (key) => {
         throw new Error(err.message);
     }
 };
+
+
 
 module.exports = { incr, getIpUser, expire, ttl };

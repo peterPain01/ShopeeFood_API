@@ -101,8 +101,8 @@ module.exports = {
             .lean();
     },
 
-    async checKExistProduct(productId) {
-        return await productModel.findById(productId).lean();
+    async checKExistProduct(productId, select = []) {
+        return await productModel.findById(productId).select(select).lean();
     },
 
     async getProductByIdAndUpdate(productId, update) {
