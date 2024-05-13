@@ -171,4 +171,12 @@ module.exports = {
             .select(getSelectData(select));
         return comments;
     },
+
+    async getProductByIds(productIds, select = []) {
+        return productModel
+            .find({
+                _id: { $in: productIds },
+            })
+            .select(getSelectData(select));
+    },
 };

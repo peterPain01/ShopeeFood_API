@@ -1,0 +1,31 @@
+version: "3.7"
+
+services:
+    app:
+        image: docker/shopee-food:v1
+        volumes:
+            - ./:/app
+        environment:
+            - DB_HOST=${DB_HOST}
+            - DB_NAME=${DB_NAME}
+            - REDIS_HOST=${REDIS_HOST}
+            - REDIS_PORT=${REDIS_PORT}
+            - PORT=${PORT}
+        ports:
+            - "${PORT}:${PORT}"
+        restart: unless-stopped
+        depends_on:
+            - redis
+            - db
+
+    db:
+        image: mongo:4.4
+        volumes:
+            - .docker/data/db:/data/db
+        restart: unless-stopped
+
+    redis:
+        image: redis:5-alpine
+        volumes:
+            - .docker/data/redis:/data
+        restart: unless-stopped

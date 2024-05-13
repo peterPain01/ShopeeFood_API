@@ -36,6 +36,7 @@ class BadRequest extends CustomError {
     }
 }
 
+
 class ConflictRequest extends CustomError {
     constructor(
         description = "CONFLICT",

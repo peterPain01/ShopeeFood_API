@@ -10,7 +10,7 @@ This project aims to deliver a seamless experience for managing delivery-related
 
 - **RESTful Architecture**: Utilizes REST principles to ensure a standardized and scalable API design.
 - **Token-Based Authentication**: Implements JWT for authentication, generating key pairs to sign access tokens and refresh tokens for each user. Includes a mechanism for tracking the reuse of refresh tokens.
-- **Redis Integration**: Implements Redis as an in-memory database for user shopping carts, enhancing performance.
+- **Redis Integration**: Implements Redis as an in-memory database for user shopping carts, rate limiting. 
 - **Firebase Real-time Messaging**: Utilizes FCM (Firebase Cloud Messaging) to push real-time notifications to users and delivery personnel.
 - **Scalability**: Designed with scalability in mind to accommodate future growth and increased demand.
 

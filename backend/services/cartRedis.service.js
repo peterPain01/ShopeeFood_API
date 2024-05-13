@@ -19,6 +19,7 @@ async function addProductToCart(userId, productId, shopId, quantity) {
                 quantity
             );
             await redisClient.hSet(`${CART_KEY}${userId}`, `shop`, shopId);
+            await redisClient.hSet(`${CART_KEY}${userId}`, `state`, "active");
         }
         // 2.
         else if (shopInCart === shopId) {
@@ -81,20 +82,40 @@ async function getCart(userId) {
     }
 }
 
-// strategy
-// 1. access 1 time get all
-// 2. access mul times get one
-// which better ???
-async function getProductInfoFromMongo() {
+async function getCartKeys(userId) {
     try {
+        return await redisClient.hKeys(`${CART_KEY}${userId}`);
     } catch (err) {
         throw new Error(err.message);
     }
 }
-
-async function getProductKeys(userId) {
+async function getTotalItems(userId) {
     try {
-        return await redisClient.hKeys(`${CART_KEY}${userId}`);
+        // result -=1 due to stored shopId
+        return (await redisClient.hLen(`${CART_KEY}${userId}`)) - 1;
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+async function reduceProductQuantity(userId, productId, quantity) {
+    try {
+        const quantityInCart = await redisClient.hGet(
+            `${CART_KEY}${userId}`,
+            `product:${productId}`
+        );
+        if (!quantityInCart) return null;
+        if (quantityInCart < quantity) return -1;
+        if (quantityInCart - quantity === 0)
+            return await redisClient.hDel(
+                `${CART_KEY}${userId}`,
+                `product:${productId}`
+            );
+        return await redisClient.hIncrBy(
+            `${CART_KEY}${userId}`,
+            `product:${productId}`,
+            -quantity
+        );
     } catch (err) {
         throw new Error(err.message);
     }
@@ -105,6 +126,7 @@ module.exports = {
     removeProductFromCart,
     deleteCart,
     getCart,
-    getProductInfoFromMongo,
-    getProductKeys,
+    getCartKeys,
+    getTotalItems,
+    reduceProductQuantity,
 };

@@ -7,7 +7,9 @@ class Database {
 
     connect() {
         mongoose
-            .connect("mongodb://127.0.0.1/ShoppeFood")
+            .connect(process.env.MONGODB_URL, { 
+                dbName: process.env.DB_NAME
+            })
             .then(() => console.log("Connected to Database"))
             .catch((err) => console.error(err));
     }

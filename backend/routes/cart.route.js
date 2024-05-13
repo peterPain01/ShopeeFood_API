@@ -31,15 +31,19 @@ router.patch(
     errorHandler(cartController.incProductQuantity)
 );
 
-
 // ===== REDIS =====
+
 router.post("/redis", errorHandler(cartRedisController.addProductToCart));
+router.get("/redis", errorHandler(cartRedisController.getCart));
 router.patch(
     "/redis/remove/product/",
     errorHandler(cartRedisController.removeProductFromCart)
 );
+router.patch(
+    "/redis/reduce/product/",
+    errorHandler(cartRedisController.reduceProductQuantity)
+);
 router.delete("/redis", errorHandler(cartRedisController.deleteCart));
-router.get("/redis", errorHandler(cartRedisController.getCart));
-
+router.post("/note", errorHandler(cartRedisController.createNote));
 
 module.exports = router;

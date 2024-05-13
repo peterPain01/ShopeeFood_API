@@ -24,6 +24,12 @@ const removeNestedNullUndefined = (obj) => {
     }
 };
 
+function isEmptyObject(obj) {
+    return (
+        obj !== null && typeof obj === "object" && Object.keys(obj).length === 0
+    );
+}
+
 const NestedObjectParser = (obj) => {
     const result = {};
     Object.keys(obj).forEach((key) => {
@@ -125,4 +131,5 @@ module.exports = {
     deleteRedundancyKey,
     distanceBetweenTwoPoints,
     findShippingFee,
+    isEmptyObject,
 };
