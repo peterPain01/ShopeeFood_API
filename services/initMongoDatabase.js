@@ -7,7 +7,7 @@ class Database {
 
     connect() {
         mongoose
-            .connect(process.env.MONGODB_URL, { 
+            .connect(process.env.MONGODB_LOCAL, { 
                 dbName: process.env.DB_NAME
             })
             .then(() => console.log("Connected to Database"))
