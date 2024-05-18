@@ -14,9 +14,12 @@ Welcome to the Delivery Mobile Application RESTful API project, created as part 
 
 To get started with using the Delivery Mobile Application RESTful API, follow these steps:
 
-1. **Installation**: Clone the repository to your local environment.
-2. **Configuration**: Install npm and configure the API settings and environment variables as needed.
-4. **Usage**: Integrate the API endpoints into your Delivery Mobile Application to enable communication with the server.
+1. **Set up**: Clone the repository to your local environment.
+2. **Docker Installation**:
+```sh
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up node-app nginx --build
+```
+
 
 ## Documentation
 
