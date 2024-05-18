@@ -4,3 +4,4 @@ todo.txt
 serviceAccountKey.json
 /uploads
 /logic-flow
+.docker/
