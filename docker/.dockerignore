@@ -3,3 +3,5 @@
 todo.txt
 serviceAccountKey.json
 /logic-flow
+.dockerignore
+Dockerfile

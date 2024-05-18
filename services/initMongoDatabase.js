@@ -1,5 +1,12 @@
 const mongoose = require("mongoose");
 
+const {
+    MONGO_USER,
+    MONGO_DATABASE,
+    MONGO_PASSWORD,
+    MONGO_IP,
+    MONGO_PORT,
+} = require("../config/database");
 class Database {
     constructor() {
         this.connect();
@@ -7,11 +14,17 @@ class Database {
 
     connect() {
         mongoose
-            .connect(process.env.MONGODB_LOCAL, { 
-                dbName: process.env.DB_NAME
-            })
-            .then(() => console.log("Connected to Database"))
-            .catch((err) => console.error(err));
+            .connect(
+                `mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_IP}:${MONGO_PORT}/?authSource=admin`,
+                {
+                    dbName: MONGO_DATABASE,
+                }
+            )
+            .then(() => console.log("Connected to MongoDb"))
+            .catch((e) => {
+                console.log(e);
+                setTimeout(this.connect(), 2000);
+            });
     }
 
     static getInstance() {

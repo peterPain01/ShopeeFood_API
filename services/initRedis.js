@@ -1,7 +1,10 @@
 const { createClient } = require("redis");
+const { REDIS_URL, REDIS_PORT } = require("../config/database");
 
 const client = createClient({
     socket: {
+        host: REDIS_URL,
+        port: REDIS_PORT,
         reconnectStrategy: function (retries) {
             if (retries > 20) {
                 console.log(

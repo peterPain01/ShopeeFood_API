@@ -1,31 +1,47 @@
 version: "3.7"
 
 services:
-    app:
-        image: docker/shopee-food:v1
+    nginx: 
+        image: nginx:stable-alpine
+        ports:
+            - "3001:80"
+        volumes:
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+        depends_on:
+            - node-app
+    node-app:
+        build: 
+            context: .
         volumes:
             - ./:/app
-        environment:
-            - DB_HOST=${DB_HOST}
-            - DB_NAME=${DB_NAME}
-            - REDIS_HOST=${REDIS_HOST}
-            - REDIS_PORT=${REDIS_PORT}
-            - PORT=${PORT}
-        ports:
-            - "${PORT}:${PORT}"
+            - /app/node_modules
+        env_file:
+            - path: ./.env
         restart: unless-stopped
         depends_on:
             - redis
-            - db
+            - mongodb
+        expose:
+            - "1234"
 
-    db:
-        image: mongo:4.4
+    mongodb: 
+        image: mongo
+        container_name: mongodb
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+            - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+        ports: 
+        - 27017:27017
         volumes:
-            - .docker/data/db:/data/db
-        restart: unless-stopped
-
+            - mongo-db:/data/db
     redis:
         image: redis:5-alpine
+        container_name: redis
         volumes:
             - .docker/data/redis:/data
         restart: unless-stopped
+volumes:
+    mongo-db:
+
+   

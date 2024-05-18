@@ -2,10 +2,6 @@
 
 Welcome to the Delivery Mobile Application RESTful API project, created as part of my Android Course. This API serves as the backbone for the Delivery Mobile Application, providing a robust and efficient communication interface for handling various operations.
 
-## Introduction
-
-This project aims to deliver a seamless experience for managing delivery-related tasks through a RESTful API architecture. It is designed to support the functionality required by the Delivery Mobile Application, ensuring smooth data exchange and interaction between the mobile app and the server.
-
 ## Features
 
 - **RESTful Architecture**: Utilizes REST principles to ensure a standardized and scalable API design.

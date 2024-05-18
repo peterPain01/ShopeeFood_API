@@ -19,6 +19,9 @@ const { max } = require("lodash");
 const PORT = process.env.PORT || 8000;
 const app = express();
 
+// https://expressjs.com/en/guide/behind-proxies.html
+app.set("trust proxy", true);
+
 app.use("/uploads/", express.static("uploads"));
 app.use(cors());
 app.use(express.json());
