@@ -1,4 +1,6 @@
 const userModel = require("../model/user.model.js");
+
+
 const User = require("../model/user.model.js");
 const {
     BadRequest,

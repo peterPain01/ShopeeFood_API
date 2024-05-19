@@ -2,6 +2,7 @@
 /node_modules
 todo.txt
 serviceAccountKey.json
-/uploads
-/logic-flow
+/src/uploads
+/src/logic-flow
 .docker/
+/dist
