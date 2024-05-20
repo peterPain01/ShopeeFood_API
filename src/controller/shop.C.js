@@ -259,7 +259,7 @@ module.exports = {
                 shopDetailInfo.addresses[0].latlng.lat || 0,
                 shopDetailInfo.addresses[0].latlng.lng || 0
             );
-            isUserLiked = shopDetailInfo.user_liked.includes(userId);
+            isUserLiked = shopDetailInfo?.user_liked?.includes(userId);
         }
         delete shopDetailInfo.user_liked;
         console.log(shopDetailInfo);
