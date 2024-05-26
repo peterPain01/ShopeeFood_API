@@ -17,11 +17,15 @@ const storage = (destinationFolder) =>
         },
     });
 
-const upload = multer({ storage: storage("uploads") });
-const uploadFileForShipper = multer({ storage: storage("uploads/shippers") });
-const uploadComment = multer({ storage: storage("uploads/comments") });
-const uploadShop = multer({ storage: storage("uploads/shops") });
-const uploadUserAvatar = multer({ storage: storage("uploads/users/avatar") });
+const upload = multer({ storage: storage("src/uploads") });
+const uploadFileForShipper = multer({
+    storage: storage("src/uploads/shippers"),
+});
+const uploadComment = multer({ storage: storage("src/uploads/comments") });
+const uploadShop = multer({ storage: storage("src/uploads/shops") });
+const uploadUserAvatar = multer({
+    storage: storage("src/uploads/users/avatar"),
+});
 
 const convert_formData = multer();
 module.exports = {
