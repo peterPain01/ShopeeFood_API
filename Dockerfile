@@ -10,6 +10,12 @@ RUN if [ "$NODE_ENV" = "development" ]; \
     else npm install --only=production; \
     fi
 
+RUN adduser -D shoppefood
+
+RUN chown -R shoppefood:shoppefood /app
+
+USER shoppefood
+
 COPY . .
 
 EXPOSE ${PORT}
