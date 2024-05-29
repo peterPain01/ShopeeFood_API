@@ -1,0 +1,24 @@
+- Chat Platform 
+    + Web Application
+    + Mobile Application
+
+- 2 type 
++ shipper - user 
++ user - admin 
+
+- TypeScript
+- Create Socket between user and shipper 
+- Received msg, Send msg to receiver  
+- Storage of message to Mongo  
+
+
+Flows 
+1. Tạo 1 Socket Channel 
+2. Nhận tin nhắn và gửi
+3. Lưu trữ tin nhắn 
+
+
+- user nhắn tin cho hỗ trợ
+    + Khách hàng gửi tin 
+    + Tìm người hỗ trợ đang online
+        + Gửi cho người hỗ trợ, tạo 1 Socket cho nó.  
