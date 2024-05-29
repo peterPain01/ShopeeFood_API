@@ -45,6 +45,12 @@ module.exports = {
         }
     },
 
+    async checkUserCredential(accessToken, userId) {
+        // TODO: Implement 
+
+        return true;
+    },
+    
     async getAuthTokenAndStore(req, res) {
         const user = req.user;
 
