@@ -75,8 +75,12 @@ async function validateUpdateShop(req, res, next) {
 async function validateGetShopInfo(req, res, next) {
     const userId = req.headers["x-client-id"];
     const accessToken = req.headers["x-authorization"];
+    
+    // user that have token expire still can access this route
     if (userId && accessToken) {
-        await verifyToken(req, res, next);
+        const isValidUserCredential = checkUserCredential(accessToken, userId);
+        if (isValidUserCredential) await verifyToken(req, res, next);
+        else next();
     } else {
         next();
     }
