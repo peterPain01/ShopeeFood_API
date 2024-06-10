@@ -1,8 +1,0 @@
-.env
-/node_modules
-todo.txt
-serviceAccountKey.json
-/src/uploads
-/src/logic-flow
-.docker/
-/dist
